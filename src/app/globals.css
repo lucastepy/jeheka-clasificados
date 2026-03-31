@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --accent: #334155;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --border: #334155;
+  --radius: 0.75rem;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Premium Button */
+.btn-premium {
+  @apply inline-flex items-center justify-center px-6 py-3 rounded-[var(--radius)] font-semibold transition-all duration-300;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+/* Modern Card Hover */
+.card-hover {
+  @apply transition-all duration-300 border border-transparent;
+}
+
+.card-hover:hover {
+  @apply border-[#334155] bg-[#1e293b]/50;
+  transform: translateY(-4px);
+}
