@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Jeheka Clasificados | Tu Portal de Servicios",
@@ -51,6 +52,7 @@ export default function RootLayout({
               </button>
             </div>
           </header>
+          <Toaster position="top-right" richColors />
           
           <main className="pt-14">
             {children}

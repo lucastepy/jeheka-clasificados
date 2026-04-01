@@ -13,18 +13,21 @@ export interface SearchFilters {
 /**
  * Servicio de búsqueda de Jeheka-Clasificados.
  * Utiliza Postgres Full Text Search (GIN indexing) para resultados óptimos.
+ * Todas las tablas e índices se encuentran en el esquema 'public'.
  */
 export const searchService = {
   async buscarAvisos(filters: SearchFilters) {
     const { query, categoria, ciudad, min_precio, max_precio, limit = 20, offset = 0 } = filters;
     const params: any[] = [];
+    
+    // Base query using public schema
     let sql = `
       SELECT 
         a.avi_id, a.avi_titulo, a.avi_descripcion, a.avi_precio, a.avi_imagenes,
         c.cli_nombre_comercial, c.cli_logo, c.cli_verificado,
         ts_rank(a.avi_search_vector, web_search_to_tsquery('spanish', $1)) as rank
-      FROM web.avisos a
-      JOIN web.v_clientes_info c ON a.cli_id = c.cli_id
+      FROM avisos a
+      JOIN v_clientes_info c ON a.cli_id = c.cli_id
       WHERE a.avi_estado = 'activo'
     `;
 
@@ -65,7 +68,7 @@ export const searchService = {
   },
 
   async obtenerCategorias() {
-    const sql = `SELECT cat_id, cat_nombre, cat_slug, cat_icono FROM web.categorias ORDER BY cat_nombre ASC`;
+    const sql = `SELECT cat_id, cat_nombre, cat_slug, cat_icono FROM categorias ORDER BY cat_nombre ASC`;
     const result = await db.query(sql);
     return result.rows;
   }

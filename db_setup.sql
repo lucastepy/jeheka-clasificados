@@ -1,19 +1,17 @@
--- SCRIPT DE INICIALIZACIÓN DE DATOS (EJECUTAR EN NEON CONSOLE)
+-- SCRIPT DE INICIALIZACIÓN DE DATOS (ESQUEMA PUBLIC)
 
--- 1. Crear Esquema para la Web Pública
-CREATE SCHEMA IF NOT EXISTS web;
-
--- 2. Tabla de Usuarios del Portal (Separados de Admin)
-CREATE TABLE IF NOT EXISTS web.usuarios_portal (
+-- 1. Tabla de Usuarios del Portal (Separados de Admin)
+CREATE TABLE IF NOT EXISTS usuarios_portal (
     usu_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     usu_email VARCHAR(255) UNIQUE NOT NULL,
     usu_password_hash TEXT NOT NULL,
     usu_nombre VARCHAR(100),
+    usu_primer_ingreso BOOLEAN DEFAULT TRUE,
     usu_fec_alta TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Tabla de Categorías (Cacheada en web para rapidez)
-CREATE TABLE IF NOT EXISTS web.categorias (
+-- 2. Tabla de Categorías (Schema public)
+CREATE TABLE IF NOT EXISTS categorias (
     cat_id SERIAL PRIMARY KEY,
     cat_nombre VARCHAR(100) NOT NULL,
     cat_slug VARCHAR(100) UNIQUE NOT NULL,
@@ -21,16 +19,16 @@ CREATE TABLE IF NOT EXISTS web.categorias (
     cat_descripcion TEXT
 );
 
--- 4. Tabla de Avisos (Optimización 100% buscador)
-CREATE TABLE IF NOT EXISTS web.avisos (
+-- 3. Tabla de Avisos (Optimización 100% buscador)
+CREATE TABLE IF NOT EXISTS avisos (
     avi_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     cli_id INTEGER NOT NULL, -- FK lógica a public.clientes
     avi_titulo VARCHAR(255) NOT NULL,
     avi_descripcion TEXT NOT NULL,
     avi_precio DECIMAL(15,2),
     avi_moneda VARCHAR(5) DEFAULT 'PYG',
-    avi_categoria_id INTEGER REFERENCES web.categorias(cat_id),
-    avi_ciudad_id INTEGER, -- FK lógica a public.ciudades si existe
+    avi_categoria_id INTEGER REFERENCES categorias(cat_id),
+    avi_ciudad_id INTEGER, -- FK lógica a public.ciudades
     avi_imagenes JSONB DEFAULT '[]',
     avi_whatsapp VARCHAR(20),
     avi_vistas_count INTEGER DEFAULT 0,
@@ -41,7 +39,7 @@ CREATE TABLE IF NOT EXISTS web.avisos (
 );
 
 -- Trigger para actualizar el vector de búsqueda automáticamente
-CREATE OR REPLACE FUNCTION web.update_avi_search_vector() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION update_avi_search_vector() RETURNS trigger AS $$
 BEGIN
   new.avi_search_vector :=
     setweight(to_tsvector('spanish', coalesce(new.avi_titulo,'')), 'A') ||
@@ -50,27 +48,21 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_avi_search_update ON web.avisos;
+DROP TRIGGER IF EXISTS trg_avi_search_update ON avisos;
 CREATE TRIGGER trg_avi_search_update BEFORE INSERT OR UPDATE
-ON web.avisos FOR EACH ROW EXECUTE FUNCTION web.update_avi_search_vector();
+ON avisos FOR EACH ROW EXECUTE FUNCTION update_avi_search_vector();
 
--- 5. Vistas de Seguridad (Capa "Stitch" de Datos)
-CREATE OR REPLACE VIEW web.v_clientes_info AS
+-- 4. Vistas de Seguridad (Capa "Stitch" de Datos)
+CREATE OR REPLACE VIEW v_clientes_info AS
 SELECT 
     id AS cli_id,
     cli_nombre_comercial,
     cli_logo,
     cli_telefono_contacto,
     cli_verificado
-FROM public.clientes;
+FROM clientes;
 
--- 6. Índices Pro-Max para el buscador
-CREATE INDEX IF NOT EXISTS idx_avisos_search_gin ON web.avisos USING GIN(avi_search_vector);
-CREATE INDEX IF NOT EXISTS idx_avisos_cat_ciudad ON web.avisos(avi_categoria_id, avi_ciudad_id);
-CREATE INDEX IF NOT EXISTS idx_avisos_fec_alta ON web.avisos(avi_fec_alta DESC);
-
--- 7. IMPORTANTE: Permisos restringidos
--- (Se asume la creación de un usuario específico para el portal)
--- GRANT USAGE ON SCHEMA web TO jeheka_public_user;
--- GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA web TO jeheka_public_user;
--- GRANT SELECT ON public.clientes TO jeheka_public_user; -- O solo a la vista
+-- 5. Índices Pro-Max para el buscador
+CREATE INDEX IF NOT EXISTS idx_avisos_search_gin ON avisos USING GIN(avi_search_vector);
+CREATE INDEX IF NOT EXISTS idx_avisos_cat_ciudad ON avisos(avi_categoria_id, avi_ciudad_id);
+CREATE INDEX IF NOT EXISTS idx_avisos_fec_alta ON avisos(avi_fec_alta DESC);
