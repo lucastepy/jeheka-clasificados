@@ -39,7 +39,7 @@ export default async function RootLayout({
                 <img 
                   src="/logo-jeheka.png" 
                   alt="jeheka logo" 
-                  className="h-9 w-auto object-contain rounded-xl transition-all group-hover:scale-105 shadow-sm"
+                  className="h-11 w-auto object-contain rounded-xl transition-all group-hover:scale-105 shadow-md"
                 />
                 <div className="flex flex-col leading-none">
                   <span className="text-sm font-black tracking-tighter lowercase">jeheka</span>
