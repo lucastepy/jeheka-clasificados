@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, LogOut, ChevronDown, Settings, Heart, LayoutDashboard } from "lucide-react";
+import { User as UserIcon, LogOut, ChevronDown, Settings, Heart, LayoutDashboard } from "lucide-react";
 import { logoutUser } from "@/app/login/actions";
+import Link from "next/link";
 
 interface UserMenuProps {
   user: {
@@ -58,15 +59,27 @@ export function UserMenu({ user }: UserMenuProps) {
               </div>
 
               <div className="space-y-1">
-                <button className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/5 hover:text-emerald-500 rounded-xl transition-all">
+                <Link 
+                  href="/mis-avisos" 
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/5 hover:text-emerald-500 rounded-xl transition-all"
+                >
                   <LayoutDashboard className="w-3.5 h-3.5" /> Mis Avisos
-                </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/5 hover:text-emerald-500 rounded-xl transition-all">
+                </Link>
+                <Link 
+                  href="/favoritos" 
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/5 hover:text-emerald-500 rounded-xl transition-all"
+                >
                   <Heart className="w-3.5 h-3.5" /> Favoritos
-                </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/5 hover:text-emerald-500 rounded-xl transition-all">
-                  <Settings className="w-3.5 h-3.5" /> Ajustes
-                </button>
+                </Link>
+                <Link 
+                  href="/mis-datos" 
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/5 hover:text-emerald-500 rounded-xl transition-all"
+                >
+                  <UserIcon className="w-3.5 h-3.5" /> Mis Datos
+                </Link>
                 
                 <div className="h-px bg-black/5 dark:border-white/5 my-2 mx-2" />
                 

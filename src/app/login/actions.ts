@@ -137,3 +137,63 @@ export async function finalizePasswordChange(formData: { userId: string; newPass
     return { success: false, message: "Error al actualizar." };
   }
 }
+
+export async function getUserData() {
+  const session = await getSession();
+  if (!session) return null;
+
+  const res = await db.query(
+    `SELECT usu_id, usu_nombre, usu_email, usu_whatsapp, usu_direccion, 
+            usu_departamento_id, usu_distrito_id, usu_ciudad_id, 
+            usu_rubro_id, usu_sub_rubro_id, usu_es_empresa 
+     FROM usuarios_portal WHERE usu_id = $1`, 
+    [session.id]
+  );
+  return res.rows[0] || null;
+}
+
+export async function updateUserData(formData: {
+  name: string;
+  whatsapp?: string;
+  direccion?: string;
+  departamentoId?: number;
+  distritoId?: number;
+  ciudadId?: number;
+  rubroId?: number;
+  subRubroId?: number;
+  esEmpresa?: boolean;
+}) {
+  const session = await getSession();
+  if (!session) return { success: false, message: "No hay sesión activa" };
+
+  try {
+    const { 
+      name, whatsapp, direccion, 
+      departamentoId, distritoId, ciudadId, 
+      rubroId, subRubroId, esEmpresa 
+    } = formData;
+
+    await db.query(
+      `UPDATE usuarios_portal SET 
+        usu_nombre = $1, usu_whatsapp = $2, usu_direccion = $3, 
+        usu_departamento_id = $4, usu_distrito_id = $5, usu_ciudad_id = $6, 
+        usu_rubro_id = $7, usu_sub_rubro_id = $8, usu_es_empresa = $9
+       WHERE usu_id = $10`,
+      [name, whatsapp, direccion, departamentoId, distritoId, ciudadId, rubroId, subRubroId, esEmpresa, session.id]
+    );
+
+    // Si cambia a cuenta personal y no tiene CV, crearlo
+    if (!esEmpresa) {
+      const cvCheck = await db.query("SELECT cv_id FROM usuarios_portal_cv WHERE usu_id = $1", [session.id]);
+      if (cvCheck.rows.length === 0) {
+        await db.query(`INSERT INTO usuarios_portal_cv (usu_id) VALUES ($1)`, [session.id]);
+      }
+    }
+
+    revalidatePath("/mis-datos");
+    return { success: true, message: "¡Datos actualizados!" };
+  } catch (error) {
+    console.error("Error updating user data:", error);
+    return { success: false, message: "Error al actualizar." };
+  }
+}
