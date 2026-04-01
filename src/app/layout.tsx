@@ -30,8 +30,6 @@ export default function RootLayout({
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-sm font-medium hover:text-emerald-400 transition-colors">Categorías</a>
-            <a href="#" className="text-sm font-medium hover:text-emerald-400 transition-colors">Ciudades</a>
             <a href="#" className="text-sm font-medium hover:text-emerald-400 transition-colors">Cómo funciona</a>
           </nav>
 
