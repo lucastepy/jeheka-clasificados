@@ -6,14 +6,26 @@
   --font-sans: "Outfit", "Inter", ui-sans-serif, system-ui;
   --color-brand: #10b981;
   --color-brand-hover: #059669;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
 }
 
 :root {
+  --background: #ffffff;
+  --foreground: #020617;
+  --card-bg: #f8fafc;
+  --card-border: #e2e8f0;
+  --muted: #64748b;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
+.dark {
   --background: #020617;
   --foreground: #f8fafc;
+  --card-bg: #0f172a;
+  --card-border: rgba(255, 255, 255, 0.05);
+  --muted: #94a3b8;
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -21,55 +33,48 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Glassmorphism */
+/* Glassmorphism Logic */
 .glass {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--glass-border);
 }
 
 .glass-emerald {
   background: rgba(16, 185, 129, 0.05);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(16, 185, 129, 0.1);
 }
 
 /* Premium Button Styling */
 .btn-premium {
-  @apply relative inline-flex items-center justify-center px-10 py-5 rounded-full font-bold overflow-hidden transition-all duration-300;
+  @apply relative inline-flex items-center justify-center rounded-full font-bold overflow-hidden transition-all duration-300;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.5);
+  color: white !important;
+  box-shadow: 0 4px 12px -4px rgba(16, 185, 129, 0.5);
 }
 
 .btn-premium:hover {
   @apply -translate-y-0.5;
-  box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 12px 20px -8px rgba(16, 185, 129, 0.4);
 }
 
 /* Custom Gradients */
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400;
-}
-
-/* Inputs styling */
-input::placeholder {
-  @apply text-slate-500 font-normal;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500;
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
   border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
 }
