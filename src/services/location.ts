@@ -28,5 +28,27 @@ export const locationService = {
     const sql = `SELECT dis_cod, dis_dsc, dis_dep_cod FROM distritos WHERE dis_dep_cod = $1 ORDER BY dis_dsc ASC`;
     const result = await db.query(sql, [depCod]);
     return result.rows;
+  },
+  /**
+   * Obtiene las ciudades de un distrito específico.
+   */
+  async getCiudades(disCod: number): Promise<any[]> {
+    const sql = `SELECT ciu_cod, ciu_dsc, ciu_dis_cod FROM ciudades WHERE ciu_dis_cod = $1 ORDER BY ciu_dsc ASC`;
+    const result = await db.query(sql, [disCod]);
+    return result.rows;
+  }
+};
+
+export const rubroService = {
+  async getRubros(): Promise<any[]> {
+    const sql = `SELECT rub_id, rub_nombre FROM rubros ORDER BY rub_nombre ASC`;
+    const result = await db.query(sql);
+    return result.rows;
+  },
+
+  async getSubRubros(rubId: number): Promise<any[]> {
+    const sql = `SELECT sub_id, sub_nombre FROM sub_rubros WHERE sub_rubro_id = $1 ORDER BY sub_nombre ASC`;
+    const result = await db.query(sql, [rubId]);
+    return result.rows;
   }
 };

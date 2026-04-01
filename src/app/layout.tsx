@@ -43,7 +43,7 @@ export default async function RootLayout({
                 />
                 <div className="flex flex-col leading-none">
                   <span className="text-sm font-black tracking-tighter lowercase">jeheka</span>
-                  <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest leading-tight">Clasificado de<br/>Servicios</span>
+                  <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest leading-tight">Clasificado de<br/>Servicios en Paraguay</span>
                 </div>
               </Link>
               {session && (

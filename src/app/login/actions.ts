@@ -41,9 +41,25 @@ export async function logoutUser() {
 // Generar clave temporal
 const generateTempPassword = () => crypto.randomBytes(4).toString("hex").toUpperCase();
 
-export async function registerUser(formData: { name: string; email: string }) {
+export async function registerUser(formData: { 
+  name: string; 
+  email: string;
+  whatsapp?: string;
+  direccion?: string;
+  departamentoId?: number;
+  distritoId?: number;
+  ciudadId?: number;
+  rubroId?: number;
+  subRubroId?: number;
+  esEmpresa?: boolean;
+}) {
   try {
-    const { name, email } = formData;
+    const { 
+      name, email, whatsapp, direccion, 
+      departamentoId, distritoId, ciudadId, 
+      rubroId, subRubroId, esEmpresa 
+    } = formData;
+
     const userCheck = await db.query("SELECT usu_id FROM usuarios_portal WHERE usu_email = $1", [email]);
     if (userCheck.rows.length > 0) return { success: false, message: "Este correo ya existe." };
 
@@ -51,11 +67,27 @@ export async function registerUser(formData: { name: string; email: string }) {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(tempPassword, salt);
 
-    await db.query(`INSERT INTO usuarios_portal (usu_nombre, usu_email, usu_password_hash, usu_primer_ingreso) VALUES ($1, $2, $3, TRUE)`, [name, email, passwordHash]);
+    const res = await db.query(
+      `INSERT INTO usuarios_portal (
+        usu_nombre, usu_email, usu_password_hash, usu_primer_ingreso,
+        usu_whatsapp, usu_direccion, usu_departamento_id, usu_distrito_id, 
+        usu_ciudad_id, usu_rubro_id, usu_sub_rubro_id, usu_es_empresa
+      ) VALUES ($1, $2, $3, TRUE, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING usu_id`, 
+      [name, email, passwordHash, whatsapp, direccion, departamentoId, distritoId, ciudadId, rubroId, subRubroId, esEmpresa]
+    );
+
+    const userId = res.rows[0].usu_id;
+
+    // Si no es empresa, generar registro de CV inicial (LinkedIn-like)
+    if (!esEmpresa) {
+      await db.query(`INSERT INTO usuarios_portal_cv (usu_id) VALUES ($1)`, [userId]);
+    }
+
     await sendWelcomeEmail(email, name, tempPassword);
 
     return { success: true, message: "Revisa tu correo para tu clave temporal." };
   } catch (error) {
+    console.error("Error en registro:", error);
     return { success: false, message: "Error en el servidor." };
   }
 }
