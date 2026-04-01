@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Jeheka Clasificados | Tu Portal de Servicios",
   description: "Encuentra y publica servicios profesionales de manera rápida y segura en el ecosistema Jeheka.",
   keywords: ["servicios", "clasificados", "publicar", "buscar", "profesionales"],
+  icons: {
+    icon: "/logo-jeheka.png",
+  }
 };
 
 export default async function RootLayout({
@@ -30,11 +33,19 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-black/5 dark:border-white/5 h-14 flex items-center px-6 lg:px-12 justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-green-600">
-                JEHEKA
-              </span>
+          <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5 h-14 flex items-center px-6 lg:px-12 justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex items-center gap-2 group">
+                <img 
+                  src="/logo-jeheka.png" 
+                  alt="Jeheka Logo" 
+                  className="h-8 w-auto object-contain brightness-0 invert dark:brightness-100 dark:invert-0 transition-all group-hover:scale-105"
+                />
+                <div className="flex flex-col leading-none">
+                  <span className="text-sm font-black tracking-tighter uppercase">Jeheka</span>
+                  <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">Servicios</span>
+                </div>
+              </Link>
               {session && (
                 <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-tighter">
                   Portal
