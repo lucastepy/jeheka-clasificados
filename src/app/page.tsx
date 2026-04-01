@@ -137,12 +137,18 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto py-10 px-6 lg:px-12 border-t border-black/5 dark:border-white/5 bg-slate-500/5">
-        <div className="max-w-4xl mx-auto flex justify-between items-center opacity-40">
-          <div className="text-[10px] font-black tracking-widest uppercase">JEHEKA CLASIFICADOS</div>
-          <div className="flex gap-6 text-[9px] font-black uppercase tracking-widest">
-            <a href="#" className="hover:text-emerald-500">Ayuda</a>
-            <a href="#" className="hover:text-emerald-500">Términos</a>
+      <footer className="mt-auto py-12 px-6 lg:px-12 border-t border-black/5 dark:border-white/5 bg-slate-500/5">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+          <div className="flex flex-col gap-3 text-center md:text-left">
+            <div className="text-xs font-black tracking-[0.2em] uppercase">JEHEKA CLASIFICADOS</div>
+            <p className="text-[10px] opacity-40 max-w-xs leading-relaxed font-bold">
+              Conectando la oferta y demanda de servicios profesionales en Paraguay con la mayor eficiencia del mercado.
+            </p>
+          </div>
+          <div className="flex gap-8 text-[9px] font-black uppercase tracking-[0.2em] opacity-40">
+            <a href="#" className="hover:text-emerald-500 transition-colors">Ayuda</a>
+            <a href="#" className="hover:text-emerald-500 transition-colors">Términos</a>
+            <a href="#" className="hover:text-emerald-500 transition-colors">Privacidad</a>
           </div>
         </div>
       </footer>

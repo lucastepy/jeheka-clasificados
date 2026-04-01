@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Jeheka Clasificados | Tu Portal de Servicios",
@@ -42,9 +43,9 @@ export default function RootLayout({
 
             <div className="flex items-center gap-2 md:gap-4">
               <ThemeToggle />
-              <button className="text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-all">
+              <Link href="/login" className="text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-all">
                 Ingresar
-              </button>
+              </Link>
               <button className="btn-premium px-4 py-1.5 text-[10px] uppercase tracking-widest">
                 Crear Aviso
               </button>
