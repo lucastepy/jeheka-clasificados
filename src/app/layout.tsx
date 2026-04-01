@@ -35,15 +35,15 @@ export default async function RootLayout({
         >
           <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5 h-14 flex items-center px-6 lg:px-12 justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/" className="flex items-center gap-2 group">
+              <Link href="/" className="flex items-center gap-3 group">
                 <img 
                   src="/logo-jeheka.png" 
-                  alt="Jeheka Logo" 
-                  className="h-8 w-auto object-contain brightness-0 invert dark:brightness-100 dark:invert-0 transition-all group-hover:scale-105"
+                  alt="jeheka logo" 
+                  className="h-9 w-auto object-contain rounded-xl transition-all group-hover:scale-105 shadow-sm"
                 />
                 <div className="flex flex-col leading-none">
-                  <span className="text-sm font-black tracking-tighter uppercase">Jeheka</span>
-                  <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">Servicios</span>
+                  <span className="text-sm font-black tracking-tighter lowercase">jeheka</span>
+                  <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest leading-tight">Clasificado de<br/>Servicios</span>
                 </div>
               </Link>
               {session && (
