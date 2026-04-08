@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { User, Mail, Phone, MapPin, Briefcase, Building2, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserData } from "@/app/login/actions";
@@ -11,6 +12,7 @@ interface ProfileFormProps {
 }
 
 export default function ProfileForm({ initialData }: ProfileFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   
   // Form State
@@ -82,6 +84,8 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
       if (res.success) {
         toast.success(res.message);
+        router.push("/");
+        router.refresh();
       } else {
         toast.error(res.message);
       }

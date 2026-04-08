@@ -81,7 +81,7 @@ export default async function RootLayout({
               )}
             </div>
           </header>
-          <Toaster position="top-right" richColors />
+          <Toaster position="top-right" richColors closeButton />
           
           <main className="pt-14">
             {children}
