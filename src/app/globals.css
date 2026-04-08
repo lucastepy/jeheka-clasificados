@@ -49,12 +49,35 @@ select option {
   background: var(--glass-bg);
   backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid var(--glass-border);
+  box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.15), 0 5px 15px -5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, background 0.4s ease;
+}
+
+.glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+}
+
+.dark .glass {
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5), 0 10px 20px -10px rgba(0, 0, 0, 0.3);
+}
+
+.dark .glass:hover {
+  box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.7), 0 20px 40px -12px rgba(0, 0, 0, 0.5);
 }
 
 .glass-emerald {
   background: rgba(16, 185, 129, 0.05);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.15);
+  transition: all 0.3s ease;
+}
+
+.glass-emerald:hover {
+  background: rgba(16, 185, 129, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -12px rgba(16, 185, 129, 0.2);
 }
 
 /* Premium Button Styling */

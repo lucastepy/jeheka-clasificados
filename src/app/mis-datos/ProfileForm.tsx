@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { User, Mail, Phone, MapPin, Briefcase, Building2, Save, Loader2, Camera, Link as LinkIcon, Upload } from "lucide-react";
+import { User, Mail, Phone, MapPin, Briefcase, Building2, Save, Loader2, Camera, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserData } from "@/app/login/actions";
 
@@ -161,7 +161,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             </button>
           </div>
 
-          <div className="flex-1 grid grid-cols-1 gap-6">
+          <div className="flex-1 space-y-4">
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
               <div className="relative group">
@@ -175,20 +175,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                 />
               </div>
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">URL de la Foto (Opcional)</label>
-              <div className="relative group opacity-60">
-                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
-                <input
-                  type="url"
-                  placeholder="O pega un enlace directo..."
-                  value={fotoUrl.startsWith("data:") ? "Imagen adjunta" : fotoUrl}
-                  onChange={(e) => setFotoUrl(e.target.value)}
-                  className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
-                />
-              </div>
-            </div>
+            <p className="text-[9px] font-bold uppercase tracking-widest opacity-30 px-1">
+              La foto que selecciones se mostrará en tu hoja de oficio pública.
+            </p>
           </div>
         </div>
 
