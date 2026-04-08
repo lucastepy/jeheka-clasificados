@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { User, Mail, Phone, MapPin, Briefcase, Building2, Save, Loader2 } from "lucide-react";
+import { User, Mail, Phone, MapPin, Briefcase, Building2, Save, Loader2, Camera, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserData } from "@/app/login/actions";
 
@@ -20,6 +20,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   const [whatsapp, setWhatsapp] = useState(initialData?.usu_whatsapp || "");
   const [direccion, setDireccion] = useState(initialData?.usu_direccion || "");
   const [esEmpresa, setEsEmpresa] = useState(initialData?.usu_es_empresa || false);
+  const [fotoUrl, setFotoUrl] = useState(initialData?.usu_foto_url || "");
   
   const [depId, setDepId] = useState(initialData?.usu_departamento_id?.toString() || "");
   const [disId, setDisId] = useState(initialData?.usu_distrito_id?.toString() || "");
@@ -79,7 +80,8 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
         ciudadId: parseInt(ciuId) || undefined,
         rubroId: parseInt(rubId) || undefined,
         subRubroId: parseInt(subRubId) || undefined,
-        esEmpresa
+        esEmpresa,
+        fotoUrl
       });
 
       if (res.success) {
@@ -108,21 +110,54 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           <User className="w-4 h-4" /> Información Personal
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
-            <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all" />
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
-              />
+        <div className="flex flex-col md:flex-row gap-8 mb-8">
+          {/* Avatar Preview */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-24 h-24 rounded-full bg-slate-500/10 border-2 border-white/5 flex items-center justify-center overflow-hidden relative group">
+              {fotoUrl ? (
+                <img src={fotoUrl} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-8 h-8 opacity-20" />
+              )}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Camera className="w-5 h-5 text-white" />
+              </div>
             </div>
+            <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">Foto de Perfil</span>
           </div>
 
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">URL de la Foto</label>
+              <div className="relative group">
+                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all font-bold" />
+                <input
+                  type="url"
+                  placeholder="https://ejemplo.com/foto.jpg"
+                  value={fotoUrl}
+                  onChange={(e) => setFotoUrl(e.target.value)}
+                  className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all" />
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Email (Solo lectura)</label>
             <div className="relative group opacity-50">

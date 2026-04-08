@@ -145,7 +145,7 @@ export async function getUserData() {
   const res = await db.query(
     `SELECT usu_id, usu_nombre, usu_email, usu_whatsapp, usu_direccion, 
             usu_departamento_id, usu_distrito_id, usu_ciudad_id, 
-            usu_rubro_id, usu_sub_rubro_id, usu_es_empresa 
+            usu_rubro_id, usu_sub_rubro_id, usu_es_empresa, usu_foto_url
      FROM usuarios_portal WHERE usu_id = $1`, 
     [session.id]
   );
@@ -162,6 +162,7 @@ export async function updateUserData(formData: {
   rubroId?: number;
   subRubroId?: number;
   esEmpresa?: boolean;
+  fotoUrl?: string;
 }) {
   const session = await getSession();
   if (!session) return { success: false, message: "No hay sesión activa" };
@@ -170,16 +171,17 @@ export async function updateUserData(formData: {
     const { 
       name, whatsapp, direccion, 
       departamentoId, distritoId, ciudadId, 
-      rubroId, subRubroId, esEmpresa 
+      rubroId, subRubroId, esEmpresa, fotoUrl 
     } = formData;
 
     await db.query(
       `UPDATE usuarios_portal SET 
         usu_nombre = $1, usu_whatsapp = $2, usu_direccion = $3, 
         usu_departamento_id = $4, usu_distrito_id = $5, usu_ciudad_id = $6, 
-        usu_rubro_id = $7, usu_sub_rubro_id = $8, usu_es_empresa = $9
-       WHERE usu_id = $10`,
-      [name, whatsapp, direccion, departamentoId, distritoId, ciudadId, rubroId, subRubroId, esEmpresa, session.id]
+        usu_rubro_id = $7, usu_sub_rubro_id = $8, usu_es_empresa = $9,
+        usu_foto_url = $10
+       WHERE usu_id = $11`,
+      [name, whatsapp, direccion, departamentoId, distritoId, ciudadId, rubroId, subRubroId, esEmpresa, fotoUrl, session.id]
     );
 
     // Si cambia a cuenta personal y no tiene CV, crearlo

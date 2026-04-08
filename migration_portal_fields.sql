@@ -66,3 +66,6 @@ CREATE TABLE IF NOT EXISTS usuarios_portal_cv (
 -- Índices optimizados
 CREATE INDEX IF NOT EXISTS idx_usu_portal_ubicacion ON usuarios_portal(usu_departamento_id, usu_distrito_id, usu_ciudad_id);
 CREATE INDEX IF NOT EXISTS idx_usu_portal_rubro ON usuarios_portal(usu_rubro_id, usu_sub_rubro_id);
+
+-- 4. Foto de Perfil
+ALTER TABLE usuarios_portal ADD COLUMN IF NOT EXISTS usu_foto_url TEXT;

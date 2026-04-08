@@ -1,7 +1,7 @@
 import React from "react";
 import { getUserData } from "@/app/login/actions";
 import { redirect } from "next/navigation";
-import { Mail, Phone, MapPin, Briefcase, Building2, ShieldCheck, Star, Award, Calendar } from "lucide-react";
+import { Mail, Phone, MapPin, Briefcase, Building2, ShieldCheck, Star, Award, Calendar, User } from "lucide-react";
 import { db } from "@/lib/db";
 
 async function getCategoryNames(rubroId?: number, subRubroId?: number) {
@@ -9,12 +9,12 @@ async function getCategoryNames(rubroId?: number, subRubroId?: number) {
   let subRubro = "";
 
   if (rubroId) {
-    const r = await db.query("SELECT rub_nombre FROM rubros WHERE id = $1", [rubroId]);
-    rubro = r.rows[0]?.rub_nombre || "";
+    const r = await db.query("SELECT nombre FROM rubros WHERE id = $1", [rubroId]);
+    rubro = r.rows[0]?.nombre || "";
   }
   if (subRubroId) {
-    const s = await db.query("SELECT sub_nombre FROM sub_rubros WHERE id = $1", [subRubroId]);
-    subRubro = s.rows[0]?.sub_nombre || "";
+    const s = await db.query("SELECT nombre FROM sub_rubros WHERE id = $1", [subRubroId]);
+    subRubro = s.rows[0]?.nombre || "";
   }
 
   return { rubro, subRubro };
@@ -42,7 +42,11 @@ export default async function MiPerfilPage() {
             <div className="glass p-6 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col items-center text-center">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 p-1 mb-6 shadow-xl shadow-emerald-500/20">
                 <div className="w-full h-full rounded-full bg-background flex items-center justify-center border-4 border-background overflow-hidden relative group">
-                   <span className="text-4xl font-black text-emerald-500">{user.usu_nombre.charAt(0).toUpperCase()}</span>
+                   {user.usu_foto_url ? (
+                     <img src={user.usu_foto_url} alt={user.usu_nombre} className="w-full h-full object-cover" />
+                   ) : (
+                     <span className="text-4xl font-black text-emerald-500">{user.usu_nombre.charAt(0).toUpperCase()}</span>
+                   )}
                 </div>
               </div>
 
