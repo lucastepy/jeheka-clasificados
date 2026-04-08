@@ -60,6 +60,13 @@ export function UserMenu({ user }: UserMenuProps) {
 
               <div className="space-y-1">
                 <Link 
+                  href="/mi-perfil" 
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" /> Mi Perfil Público
+                </Link>
+                <Link 
                   href="/mis-avisos" 
                   onClick={() => setIsOpen(false)}
                   className="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/5 hover:text-emerald-500 rounded-xl transition-all"
