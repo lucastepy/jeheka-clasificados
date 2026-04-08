@@ -19,7 +19,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 px-3 py-1 rounded-full glass-emerald border border-emerald-500/10 text-emerald-500 text-[9px] font-bold tracking-[0.15em] mb-6 shadow-sm"
+          className="flex items-center gap-2 px-3 py-1 rounded-full glass-emerald border border-emerald-500/10 text-emerald-500 text-[9px] font-bold tracking-widest mb-6 shadow-sm"
         >
           <Zap className="w-2.5 h-2.5 fill-emerald-500" />
           <span>PORTAL DE CLASIFICADOS</span>
@@ -63,7 +63,7 @@ export default function HomePage() {
                 placeholder="¿Qué servicio buscas?"
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                className="w-full bg-transparent border-none focus:ring-0 text-sm py-3 pl-11 pr-4 rounded-xl"
+                className="w-full bg-transparent border-none focus:ring-0 text-sm py-3 pl-11 pr-4 rounded-xl outline-none"
               />
             </div>
             
@@ -74,11 +74,11 @@ export default function HomePage() {
               <input
                 type="text"
                 placeholder="Ubicación"
-                className="w-full bg-transparent border-none focus:ring-0 text-sm py-3 pl-11 pr-4 rounded-xl"
+                className="w-full bg-transparent border-none focus:ring-0 text-sm py-3 pl-11 pr-4 rounded-xl outline-none"
               />
             </div>
 
-            <button className="btn-premium px-10 py-3 text-xs uppercase tracking-widest font-black shrink-0">
+            <button className="btn-premium px-10 py-3 text-xs uppercase tracking-widest font-bold shrink-0">
               Buscar
             </button>
           </div>
@@ -87,7 +87,7 @@ export default function HomePage() {
         {/* Quick Tags */}
         <div className="mt-5 flex gap-4 text-[10px] opacity-40 flex-wrap justify-center font-bold tracking-widest">
           {["ELECTRICISTA", "HOGAR", "LEGAL", "MUDANZAS"].map(tag => (
-            <button key={tag} className="hover:text-emerald-500 transition-colors cursor-pointer tracking-tighter">#{tag}</button>
+            <button key={tag} className="hover:text-emerald-500 transition-colors cursor-pointer">#{tag}</button>
           ))}
         </div>
       </section>
@@ -97,15 +97,15 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-6 flex flex-wrap justify-center gap-x-12 gap-y-4">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-500 opacity-70" />
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-50">Verificados</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Verificados</span>
           </div>
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-emerald-500 opacity-70" />
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-50">Búsqueda Smart</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Búsqueda Smart</span>
           </div>
           <div className="flex items-center gap-2">
             <Star className="w-4 h-4 text-emerald-500 opacity-70" />
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-50">Feedback Real</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Feedback Real</span>
           </div>
         </div>
       </section>
@@ -113,8 +113,8 @@ export default function HomePage() {
       {/* Category Grid */}
       <section className="py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
         <div className="flex justify-between items-end mb-8">
-          <h2 className="text-xl font-black tracking-tight uppercase">Categorías</h2>
-          <button className="text-[10px] text-emerald-500 font-black hover:underline uppercase tracking-widest">Ver Todas</button>
+          <h2 className="text-xl font-bold tracking-tight uppercase">Categorías</h2>
+          <button className="text-[10px] text-emerald-500 font-bold hover:underline uppercase tracking-widest">Ver Todas</button>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -146,13 +146,13 @@ export default function HomePage() {
               className="h-12 w-auto object-contain rounded-xl opacity-80"
             />
             <div className="flex flex-col text-left">
-              <div className="text-sm font-black tracking-tighter lowercase leading-none">jeheka</div>
+              <div className="text-sm font-bold tracking-tighter lowercase leading-none">jeheka</div>
               <p className="text-[8px] font-bold opacity-40 uppercase tracking-widest leading-tight">
                 Clasificado de<br/>Servicios en Paraguay
               </p>
             </div>
           </div>
-          <div className="flex gap-8 text-[9px] font-black uppercase tracking-[0.2em] opacity-40">
+          <div className="flex gap-8 text-[9px] font-bold uppercase tracking-widest opacity-40">
             <a href="#" className="hover:text-emerald-500 transition-colors">Ayuda</a>
             <a href="#" className="hover:text-emerald-500 transition-colors">Términos</a>
             <a href="#" className="hover:text-emerald-500 transition-colors">Privacidad</a>

@@ -100,13 +100,13 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           <User className="w-32 h-32" />
         </div>
         
-        <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2 opacity-50">
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2 opacity-50">
           <User className="w-4 h-4" /> Información Personal
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
             <div className="relative group">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all" />
               <input
@@ -120,7 +120,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Email (Solo lectura)</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Email (Solo lectura)</label>
             <div className="relative group opacity-50">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
               <input
@@ -133,7 +133,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">WhatsApp</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">WhatsApp</label>
             <div className="relative group">
               <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all" />
               <input
@@ -147,9 +147,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Tipo de Perfil</label>
+             <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Tipo de Perfil</label>
              <div className="flex items-center gap-4 h-12 px-6 bg-background/50 border border-white/5 rounded-xl">
-               <span className={`text-[10px] font-black tracking-widest transition-opacity ${!esEmpresa ? 'opacity-100 text-emerald-500' : 'opacity-30'}`}>PERSONAL</span>
+               <span className={`text-[10px] font-bold tracking-widest transition-opacity ${!esEmpresa ? 'opacity-100 text-emerald-500' : 'opacity-30'}`}>PERSONAL</span>
                <button 
                  type="button"
                  onClick={() => setEsEmpresa(!esEmpresa)}
@@ -157,7 +157,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                >
                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${esEmpresa ? 'right-1' : 'left-1'}`} />
                </button>
-               <span className={`text-[10px] font-black tracking-widest transition-opacity ${esEmpresa ? 'opacity-100 text-emerald-500' : 'opacity-30'}`}>EMPRESA</span>
+               <span className={`text-[10px] font-bold tracking-widest transition-opacity ${esEmpresa ? 'opacity-100 text-emerald-500' : 'opacity-30'}`}>EMPRESA</span>
              </div>
           </div>
         </div>
@@ -165,13 +165,13 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
       {/* Sección: Ubicación */}
       <div className="glass p-6 md:p-8 rounded-3xl border border-white/5">
-        <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2 opacity-50">
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2 opacity-50">
           <MapPin className="w-4 h-4" /> Ubicación
         </h2>
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Dirección</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Dirección</label>
             <input
               type="text"
               value={direccion}
@@ -183,35 +183,35 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Departamento</label>
+              <label className="text-[9px] font-bold uppercase tracking-widest opacity-40 ml-1">Departamento</label>
               <select 
                 value={depId}
                 onChange={(e) => { setDepId(e.target.value); setDisId(""); setCiuId(""); }}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none appearance-none"
+                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
               >
                  <option value="">Seleccionar...</option>
                  {departamentos.map(d => <option key={d.dep_cod} value={d.dep_cod}>{d.dep_dsc}</option>)}
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Distrito</label>
+              <label className="text-[9px] font-bold uppercase tracking-widest opacity-40 ml-1">Distrito</label>
               <select 
                 disabled={!depId}
                 value={disId}
                 onChange={(e) => { setDisId(e.target.value); setCiuId(""); }}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30 appearance-none"
+                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
               >
                  <option value="">Seleccionar...</option>
                  {distritos.map(d => <option key={d.dis_cod} value={d.dis_cod}>{d.dis_dsc}</option>)}
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Ciudad</label>
+              <label className="text-[9px] font-bold uppercase tracking-widest opacity-40 ml-1">Ciudad</label>
               <select 
                 disabled={!disId}
                 value={ciuId}
                 onChange={(e) => setCiuId(e.target.value)}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30 appearance-none"
+                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
               >
                  <option value="">Seleccionar...</option>
                  {ciudades.map(c => <option key={c.ciu_cod} value={c.ciu_cod}>{c.ciu_dsc}</option>)}
@@ -223,29 +223,29 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
       {/* Sección: Rubro Profesional */}
       <div className="glass p-6 md:p-8 rounded-3xl border border-white/5">
-        <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2 opacity-50">
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2 opacity-50">
           <Briefcase className="w-4 h-4" /> Actividad Comercial
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Rubro Principal</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Rubro Principal</label>
             <select 
               value={rubId}
               onChange={(e) => { setRubId(e.target.value); setSubRubId(""); }}
-              className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none appearance-none"
+              className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
             >
                <option value="">Seleccionar rubro</option>
                {rubros.map(r => <option key={r.rub_id} value={r.rub_id}>{r.rub_nombre}</option>)}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Sub-rubro Específico</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Sub-rubro Específico</label>
             <select 
               disabled={!rubId}
               value={subRubId}
               onChange={(e) => setSubRubId(e.target.value)}
-              className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30 appearance-none"
+              className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
             >
                <option value="">Seleccionar sub-rubro</option>
                {subRubros.map(s => <option key={s.sub_id} value={s.sub_id}>{s.sub_nombre}</option>)}
@@ -271,7 +271,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       <div className="flex justify-end pt-4">
         <button 
           disabled={loading}
-          className="btn-premium px-12 py-4 text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3 disabled:opacity-50"
+          className="btn-premium px-12 py-4 text-xs font-bold uppercase tracking-widest flex items-center gap-3 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />

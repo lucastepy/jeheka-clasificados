@@ -42,12 +42,12 @@ export default async function RootLayout({
                   className="h-11 w-auto object-contain rounded-xl transition-all group-hover:scale-105 shadow-md"
                 />
                 <div className="flex flex-col leading-none">
-                  <span className="text-sm font-black tracking-tighter lowercase">jeheka</span>
+                  <span className="text-sm font-bold tracking-tighter lowercase">jeheka</span>
                   <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest leading-tight">Clasificado de<br/>Servicios en Paraguay</span>
                 </div>
               </Link>
               {session && (
-                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-tighter">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-tighter">
                   Portal
                 </span>
               )}

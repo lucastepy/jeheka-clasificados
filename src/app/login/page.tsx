@@ -131,10 +131,10 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl glass-emerald border border-emerald-500/20 text-emerald-500 mb-6 font-bold uppercase tracking-widest text-[9px]">
             <ShieldCheck className="w-5 h-5 mb-0.5" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight mb-2 uppercase">
+          <h1 className="text-3xl font-bold tracking-tight mb-2 uppercase">
             {mode === "login" ? "Bienvenido" : mode === "register" ? "Únete" : "Seguridad"}
           </h1>
-          <p className="text-xs opacity-50 font-bold uppercase tracking-widest leading-relaxed">
+          <p className="text-xs opacity-50 font-semibold uppercase tracking-widest leading-relaxed">
             {mode === "login" ? "Regresa a tu cuenta" : mode === "register" ? "Crea tu perfil profesional" : "Actualiza tu contraseña"}
           </p>
         </div>
@@ -152,14 +152,14 @@ export default function LoginPage() {
                 >
                   {/* Fila 1: Nombre */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
                     <div className="relative group">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all font-bold" />
                       <input
                         type="text"
                         required
                         placeholder="Ej: Juan Pérez"
-                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                       />
@@ -169,17 +169,17 @@ export default function LoginPage() {
                   {/* Fila 2: WhatsApp y Empresa toggle */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">WhatsApp</label>
+                       <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">WhatsApp</label>
                        <input
                          type="tel"
                          placeholder="09xx..."
-                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
                          value={whatsapp}
                          onChange={(e) => setWhatsapp(e.target.value)}
                        />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Tipo Cuenta</label>
+                       <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Tipo Cuenta</label>
                        <div className="flex items-center gap-2 h-11 px-4 bg-background/50 border border-black/5 dark:border-white/5 rounded-xl">
                          <span className="text-[10px] font-bold opacity-40">PERSONAL</span>
                          <button 
@@ -196,11 +196,11 @@ export default function LoginPage() {
 
                   {/* Fila 3: Dirección */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Dirección</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Dirección</label>
                     <input
                       type="text"
                       placeholder="Calle, Nro de casa..."
-                      className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                      className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
                       value={direccion}
                       onChange={(e) => setDireccion(e.target.value)}
                     />
@@ -209,7 +209,7 @@ export default function LoginPage() {
                   {/* Ubicación: Dept -> Dist -> Ciudad */}
                   <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase tracking-tight opacity-40">Dep.</label>
+                      <label className="text-[9px] font-bold uppercase tracking-tight opacity-40">Dep.</label>
                       <select 
                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-lg py-2 px-2 text-[10px] focus:ring-1 focus:ring-emerald-500/30 outline-none"
                         value={depId}
@@ -220,7 +220,7 @@ export default function LoginPage() {
                       </select>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase tracking-tight opacity-40">Distrito</label>
+                      <label className="text-[9px] font-bold uppercase tracking-tight opacity-40">Distrito</label>
                       <select 
                         disabled={!depId}
                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-lg py-2 px-2 text-[10px] focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-50"
@@ -232,7 +232,7 @@ export default function LoginPage() {
                       </select>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase tracking-tight opacity-40">Ciudad</label>
+                      <label className="text-[9px] font-bold uppercase tracking-tight opacity-40">Ciudad</label>
                       <select 
                         disabled={!disId}
                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-lg py-2 px-2 text-[10px] focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-50"
@@ -248,7 +248,7 @@ export default function LoginPage() {
                   {/* Rubro y Subrubro */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Rubro</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Rubro</label>
                       <select 
                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
                         value={rubId}
@@ -259,7 +259,7 @@ export default function LoginPage() {
                       </select>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Sub-rubro</label>
+                       <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Sub-rubro</label>
                        <select 
                         disabled={!rubId}
                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-50"
@@ -274,7 +274,7 @@ export default function LoginPage() {
 
                   {!esEmpresa && (
                     <div className="p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
-                       <p className="text-[9px] font-bold text-emerald-500 leading-relaxed uppercase tracking-wider">
+                       <p className="text-[9px] font-bold text-emerald-500 leading-relaxed uppercase tracking-widest">
                          ✨ Como profesional, generaremos tu perfil/CV automáticamente basado en tu rubro. Podrás editarlo luego.
                        </p>
                     </div>
@@ -289,11 +289,11 @@ export default function LoginPage() {
                   animate={{ opacity: 1, height: "auto" }}
                   className="space-y-4 overflow-hidden"
                 >
-                  <div className="p-2.5 rounded-lg bg-orange-500/5 border border-orange-500/20 text-[9px] text-orange-500 font-black uppercase tracking-[0.2em] text-center mb-2">
+                  <div className="p-2.5 rounded-lg bg-orange-500/5 border border-orange-500/20 text-[9px] text-orange-500 font-bold uppercase tracking-widest text-center mb-2">
                     Clave temporal detectada
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Nueva Contraseña</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Nueva Contraseña</label>
                     <div className="relative group">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 group-focus-within:opacity-100 transition-all" />
                       <input
@@ -301,7 +301,7 @@ export default function LoginPage() {
                         required
                         minLength={8}
                         placeholder="Mínimo 8 caracteres"
-                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                       />
@@ -312,15 +312,15 @@ export default function LoginPage() {
 
               {mode !== "force_change" && (
                 <motion.div key="base-fields" className="space-y-4">
-                  <div className="space-y-2 font-bold">
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Email</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Email</label>
                     <div className="relative group">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all" />
                       <input
                         type="email"
                         required
                         placeholder="tu@email.com"
-                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                       />
@@ -329,9 +329,9 @@ export default function LoginPage() {
 
                   <div className="space-y-2">
                     <div className="flex justify-between items-center px-1">
-                      <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Contraseña</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest opacity-40">Contraseña</label>
                       {mode === "login" && (
-                        <button type="button" className="text-[9px] font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-400">¿Perdiste la clave?</button>
+                        <button type="button" className="text-[9px] font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-400">¿Perdiste la clave?</button>
                       )}
                     </div>
                     <div className="relative group">
@@ -341,7 +341,7 @@ export default function LoginPage() {
                         required={mode === "login"}
                         disabled={mode === "register"}
                         placeholder={mode === "login" ? "••••••••" : "Se enviará al correo"}
-                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all disabled:opacity-50"
+                        className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all disabled:opacity-50 outline-none"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
@@ -353,7 +353,7 @@ export default function LoginPage() {
 
             <button 
               disabled={loading}
-              className="btn-premium w-full py-4 mt-6 text-xs tracking-[0.2em] uppercase font-black flex items-center justify-center gap-2 group disabled:opacity-50"
+              className="btn-premium w-full py-4 mt-6 text-xs tracking-widest uppercase font-bold flex items-center justify-center gap-2 group disabled:opacity-50"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -369,9 +369,9 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <div className="text-center mt-8 font-bold">
+        <div className="text-center mt-8">
           {mode !== "force_change" ? (
-            <p className="text-xs font-black uppercase tracking-[0.1em] opacity-40">
+            <p className="text-xs font-bold uppercase tracking-widest opacity-40">
               {mode === "login" ? "¿No tienes cuenta?" : "¿Ya eres miembro?"}
               <button 
                 onClick={() => setMode(mode === "login" ? "register" : "login")}
@@ -383,7 +383,7 @@ export default function LoginPage() {
           ) : (
             <button 
               onClick={() => setMode("login")}
-              className="text-[9px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all"
+              className="text-[9px] font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-all"
             >
               Cancelar Proceso
             </button>
