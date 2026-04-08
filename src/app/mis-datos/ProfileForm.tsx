@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { User, Mail, Phone, MapPin, Briefcase, Building2, Save, Loader2, Camera, Link as LinkIcon } from "lucide-react";
+import { User, Mail, Phone, MapPin, Briefcase, Building2, Save, Loader2, Camera, Link as LinkIcon, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserData } from "@/app/login/actions";
 
@@ -13,6 +13,7 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ initialData }: ProfileFormProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   
   // Form State
@@ -41,7 +42,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     fetch("/api/rubros").then(r => r.json()).then(setRubros).catch(() => {});
   }, []);
 
-  // Cascading Loads
+  // Cascading Loads ... (Keeping existing logic)
   useEffect(() => {
     if (depId) {
       fetch(`/api/locations/distritos?dep_cod=${depId}`).then(r => r.json()).then(setDistritos).catch(() => {});
@@ -65,6 +66,23 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       setSubRubros([]);
     }
   }, [rubId]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("La imagen es muy pesada (máx 2MB)");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFotoUrl(reader.result as string);
+        toast.success("Foto cargada localmente");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,36 +129,39 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
         </h2>
 
         <div className="flex flex-col md:flex-row gap-8 mb-8">
-          {/* Avatar Preview */}
+          {/* Avatar Preview & Upload */}
           <div className="flex flex-col items-center gap-4">
-            <div className="w-24 h-24 rounded-full bg-slate-500/10 border-2 border-white/5 flex items-center justify-center overflow-hidden relative group">
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="w-24 h-24 rounded-full bg-slate-500/10 border-2 border-white/5 flex items-center justify-center overflow-hidden relative group cursor-pointer"
+            >
               {fotoUrl ? (
                 <img src={fotoUrl} alt="Preview" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-8 h-8 opacity-20" />
               )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center flex-col gap-1">
                 <Camera className="w-5 h-5 text-white" />
+                <span className="text-[7px] font-bold text-white uppercase tracking-widest">Cambiar</span>
               </div>
             </div>
-            <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">Foto de Perfil</span>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/*" 
+              className="hidden" 
+            />
+            <button 
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[8px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all"
+            >
+              <Upload className="w-2.5 h-2.5" /> Adjuntar Foto
+            </button>
           </div>
 
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">URL de la Foto</label>
-              <div className="relative group">
-                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all font-bold" />
-                <input
-                  type="url"
-                  placeholder="https://ejemplo.com/foto.jpg"
-                  value={fotoUrl}
-                  onChange={(e) => setFotoUrl(e.target.value)}
-                  className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
-                />
-              </div>
-            </div>
-
+          <div className="flex-1 grid grid-cols-1 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">Nombre Completo</label>
               <div className="relative group">
@@ -150,6 +171,20 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 ml-1">URL de la Foto (Opcional)</label>
+              <div className="relative group opacity-60">
+                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
+                <input
+                  type="url"
+                  placeholder="O pega un enlace directo..."
+                  value={fotoUrl.startsWith("data:") ? "Imagen adjunta" : fotoUrl}
+                  onChange={(e) => setFotoUrl(e.target.value)}
                   className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
                 />
               </div>
@@ -202,7 +237,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
         </div>
       </div>
 
-      {/* Sección: Ubicación */}
+      {/* Sección: Ubicación ... */}
       <div className="glass p-6 md:p-8 rounded-3xl border border-white/5">
         <h2 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2 opacity-50">
           <MapPin className="w-4 h-4" /> Ubicación
@@ -260,7 +295,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
         </div>
       </div>
 
-      {/* Sección: Rubro Profesional */}
+      {/* Sección: Rubro Profesional ... */}
       <div className="glass p-6 md:p-8 rounded-3xl border border-white/5">
         <h2 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2 opacity-50">
           <Briefcase className="w-4 h-4" /> Actividad Comercial

@@ -107,11 +107,12 @@ export async function loginUser(formData: { email: string; password: string }) {
     }
 
     // Crear Sesión
-    const sessionToken = await encrypt({ id: user.usu_id, name: user.usu_nombre });
+    const userDetails = await db.query("SELECT usu_foto_url FROM usuarios_portal WHERE usu_id = $1", [user.usu_id]);
+    const sessionToken = await encrypt({ id: user.usu_id, name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url });
     const cookieStore = await cookies();
     cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 2, path: "/" });
 
-    return { success: true, message: "¡Bienvenido de nuevo!", user: { name: user.usu_nombre } };
+    return { success: true, message: "¡Bienvenido de nuevo!", user: { name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url } };
   } catch (error) {
     return { success: false, message: "Error al ingresar." };
   }
@@ -192,7 +193,17 @@ export async function updateUserData(formData: {
       }
     }
 
+    // Actualizar Cookie de Sesión con nuevos datos (nombre/foto)
+    const sessionToken = await encrypt({ 
+      id: session.id, 
+      name: name,
+      fotoUrl: fotoUrl 
+    });
+    const cookieStore = await cookies();
+    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 2, path: "/" });
+
     revalidatePath("/mis-datos");
+    revalidatePath("/");
     return { success: true, message: "¡Datos actualizados!" };
   } catch (error) {
     console.error("Error updating user data:", error);
