@@ -70,15 +70,45 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("La imagen es muy pesada (máx 2MB)");
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("La imagen es demasiado pesada (máx 5MB)");
         return;
       }
 
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFotoUrl(reader.result as string);
-        toast.success("Foto cargada localmente");
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          // Crear un canvas para redimensionar
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 600;
+          const MAX_HEIGHT = 600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Convertir a base64 comprimido (calidad 0.7)
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          setFotoUrl(dataUrl);
+          toast.success("Foto optimizada y cargada");
+        };
+        img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
