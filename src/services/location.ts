@@ -41,13 +41,13 @@ export const locationService = {
 
 export const rubroService = {
   async getRubros(): Promise<any[]> {
-    const sql = `SELECT rub_id, rub_nombre FROM rubros ORDER BY rub_nombre ASC`;
+    const sql = `SELECT id as rub_id, nombre as rub_nombre FROM rubros ORDER BY nombre ASC`;
     const result = await db.query(sql);
     return result.rows;
   },
 
   async getSubRubros(rubId: number): Promise<any[]> {
-    const sql = `SELECT sub_id, sub_nombre FROM sub_rubros WHERE sub_rubro_id = $1 ORDER BY sub_nombre ASC`;
+    const sql = `SELECT id as sub_id, nombre as sub_nombre FROM sub_rubros WHERE rubro_id = $1 ORDER BY nombre ASC`;
     const result = await db.query(sql, [rubId]);
     return result.rows;
   }
