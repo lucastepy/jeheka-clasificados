@@ -172,16 +172,27 @@ export async function getAvisoById(id: string) {
 
 export async function rateAviso(avisoId: string, rating: number, comentario?: string) {
   const session = await getSession();
-  if (!session) return { success: false, message: "Debes iniciar sesión para calificar" };
+  const usuId = session?.id || null;
 
   try {
-    await db.query(
-      `INSERT INTO avisos_calificaciones (avi_id, usu_id, calificacion, comentario)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (avi_id, usu_id) 
-       DO UPDATE SET calificacion = EXCLUDED.calificacion, comentario = EXCLUDED.comentario, fecha_alta = CURRENT_TIMESTAMP`,
-      [avisoId, session.id, rating, comentario]
-    );
+    // Si el usuario está logueado, intentamos actualizar su voto previo. 
+    // Si no está logueado, simplemente insertamos un voto nuevo.
+    if (usuId) {
+      await db.query(
+        `INSERT INTO avisos_calificaciones (avi_id, usu_id, calificacion, comentario)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (avi_id, usu_id) 
+         DO UPDATE SET calificacion = EXCLUDED.calificacion, comentario = EXCLUDED.comentario, fecha_alta = CURRENT_TIMESTAMP`,
+        [avisoId, usuId, rating, comentario]
+      );
+    } else {
+      await db.query(
+        `INSERT INTO avisos_calificaciones (avi_id, usu_id, calificacion, comentario)
+         VALUES ($1, NULL, $2, $3)`,
+        [avisoId, rating, comentario]
+      );
+    }
+    
     revalidatePath(`/avisos/${avisoId}`);
     return { success: true, message: "¡Gracias por tu calificación!" };
   } catch (error) {
