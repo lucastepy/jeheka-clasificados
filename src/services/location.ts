@@ -41,14 +41,32 @@ export const locationService = {
 
 export const rubroService = {
   async getRubros(): Promise<any[]> {
-    const sql = `SELECT cat_id as rub_id, cat_nombre as rub_nombre FROM categorias ORDER BY cat_nombre ASC`;
-    const result = await db.query(sql);
-    return result.rows;
+    try {
+      // Intentar primero con la tabla rubros (esquema admin/public)
+      const rubros = await db.query(`SELECT id as rub_id, nombre as rub_nombre FROM rubros ORDER BY nombre ASC`);
+      if (rubros.rows.length > 0) return rubros.rows;
+      
+      // Si está vacía, intentar con categorias (portal)
+      const cats = await db.query(`SELECT cat_id as rub_id, cat_nombre as rub_nombre FROM categorias ORDER BY cat_nombre ASC`);
+      return cats.rows;
+    } catch (e) {
+      // Fallback a categorias si rubros no existe
+      try {
+        const cats = await db.query(`SELECT cat_id as rub_id, cat_nombre as rub_nombre FROM categorias ORDER BY cat_nombre ASC`);
+        return cats.rows;
+      } catch (e2) {
+        return [];
+      }
+    }
   },
 
   async getSubRubros(rubId: number): Promise<any[]> {
-    // Las categorías del portal (categorias) son actualmente de nivel único.
-    // Si en el futuro se requieren sub-categorías, se deberá agregar la columna cat_parent_id.
-    return [];
+    try {
+      // Intentar con la tabla sub_rubros
+      const sub = await db.query(`SELECT id as sub_id, nombre as sub_nombre FROM sub_rubros WHERE rubro_id = $1 ORDER BY nombre ASC`, [rubId]);
+      return sub.rows;
+    } catch (e) {
+      return [];
+    }
   }
 };
