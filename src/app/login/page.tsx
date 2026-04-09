@@ -210,7 +210,7 @@ export default function LoginPage() {
                   {/* Ubicación: Dept -> Dist -> Ciudad */}
                   <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-tight opacity-40">Dep.</label>
+                      <label className="text-[9px] font-bold uppercase tracking-tight opacity-40">Departamento</label>
                       <select 
                         className="w-full bg-background/50 border border-black/5 dark:border-white/5 rounded-lg py-2 px-2 text-[10px] focus:ring-1 focus:ring-emerald-500/30 outline-none"
                         value={depId}

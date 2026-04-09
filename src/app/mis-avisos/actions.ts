@@ -61,7 +61,7 @@ export async function createAviso(formData: {
           nombre_empresa, razon_social, email_facturacion, 
           telefono_facturacion, rubro_id, sub_rubro_id, 
           fecha_alta, estado, plan_id
-        ) VALUES ($1, $1, $2, $3, $4, $5, CURRENT_TIMESTAMP, 'AC', 1)
+        ) VALUES ($1, $1, $2, $3, $4, $5, CURRENT_TIMESTAMP, 'ACTIVO', 1)
         RETURNING id`,
         [
           userData.usu_nombre, 
