@@ -43,9 +43,45 @@ export async function createAviso(formData: {
       ciudadId, whatsapp, imagenes 
     } = formData;
 
-    // Obtener el cli_id del usuario para vincularlo al aviso (usando el nombre correcto de la tabla usuarios_portal)
-    const userRes = await db.query("SELECT usu_cliente_id FROM usuarios_portal WHERE usu_id = $1", [session.id]);
-    const cliId = userRes.rows[0]?.usu_cliente_id;
+    // Obtener el cli_id del usuario para vincularlo al aviso
+    const userRes = await db.query(
+      "SELECT usu_cliente_id, usu_nombre, usu_email, usu_whatsapp, usu_rubro_id, usu_sub_rubro_id FROM usuarios_portal WHERE usu_id = $1", 
+      [session.id]
+    );
+    
+    let cliId = userRes.rows[0]?.usu_cliente_id;
+
+    // Si no tiene cli_id, creamos el cliente automáticamente en la tabla administrativa
+    if (!cliId) {
+      console.log("Detectado usuario sin ID de cliente. Creando registro en tabla clientes...");
+      const userData = userRes.rows[0];
+      
+      const clientInsertRes = await db.query(
+        `INSERT INTO clientes (
+          nombre_empresa, razon_social, email_facturacion, 
+          telefono_facturacion, rubro_id, sub_rubro_id, 
+          fecha_alta, estado, plan_id
+        ) VALUES ($1, $1, $2, $3, $4, $5, CURRENT_TIMESTAMP, 'AC', 1)
+        RETURNING id`,
+        [
+          userData.usu_nombre, 
+          userData.usu_email, 
+          userData.usu_whatsapp,
+          userData.usu_rubro_id,
+          userData.usu_sub_rubro_id
+        ]
+      );
+      
+      cliId = clientInsertRes.rows[0].id;
+      
+      // Actualizamos el usuario del portal con su nuevo ID de cliente vinculado
+      await db.query(
+        "UPDATE usuarios_portal SET usu_cliente_id = $1 WHERE usu_id = $2",
+        [cliId, session.id]
+      );
+      
+      console.log("Cliente creado y vinculado exitosamente con ID:", cliId);
+    }
 
     const res = await db.query(
       `INSERT INTO avisos (
