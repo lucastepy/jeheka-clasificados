@@ -328,12 +328,7 @@ export default function LoginPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="text-[10px] font-bold uppercase tracking-widest opacity-40">Contraseña</label>
-                      {mode === "login" && (
-                        <button type="button" className="text-[9px] font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-400">¿Perdiste la clave?</button>
-                      )}
-                    </div>
+                    <label className="text-[10px] font-bold uppercase tracking-widest opacity-40">Contraseña</label>
                     <div className="relative group">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all" />
                       <input
@@ -366,6 +361,11 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+            {mode === "login" && (
+              <div className="text-center mt-4">
+                <button type="button" className="text-[10px] font-bold uppercase tracking-widest text-emerald-500/60 hover:text-emerald-500 transition-colors">¿Perdiste la clave?</button>
+              </div>
+            )}
           </form>
         </div>
 

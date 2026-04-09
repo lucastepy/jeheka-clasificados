@@ -68,7 +68,7 @@ export default async function RootLayout({
                 </>
               ) : (
                 <>
-                  <Link href="/mis-datos" className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-500/5 transition-all group">
+                  <Link href="/mis-datos" className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-500/5 transition-all group">
                     <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-emerald-500 transition-all">Mis Datos</span>
                   </Link>
                   <UserMenu user={session} />
