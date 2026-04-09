@@ -9,8 +9,7 @@ import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const secretKey = "jeheka_secret_2026_premium_portal";
-const key = new TextEncoder().encode(process.env.SESSION_SECRET || secretKey);
+const key = new TextEncoder().encode("jeheka_mega_secret_key_2026_fixed");
 
 export async function encrypt(payload: any) {
   return await new SignJWT(payload)

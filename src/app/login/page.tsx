@@ -107,7 +107,8 @@ export default function LoginPage() {
           toast.error("Error al actualizar", { description: res?.message || "Algo salió mal" });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.digest?.startsWith("NEXT_REDIRECT")) return;
       toast.error("Error de conexión", { description: "Hubo un problema al conectar con el servidor." });
     } finally {
       setLoading(false);
