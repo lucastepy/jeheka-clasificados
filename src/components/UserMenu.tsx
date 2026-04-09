@@ -56,7 +56,7 @@ export function UserMenu({ user }: UserMenuProps) {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute right-0 mt-2 w-56 glass p-2 rounded-2xl shadow-2xl z-50 border border-black/5 dark:border-white/5"
+              className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#0a0f1d] p-2 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 border border-black/5 dark:border-white/10"
             >
               <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 mb-2 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center overflow-hidden">
