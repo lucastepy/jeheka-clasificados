@@ -41,13 +41,15 @@ export const locationService = {
 
 export const rubroService = {
   async getRubros(): Promise<any[]> {
-    const sql = `SELECT id as rub_id, nombre as rub_nombre FROM rubros ORDER BY nombre ASC`;
+    const sql = `SELECT cat_id as rub_id, cat_nombre as rub_nombre FROM categorias ORDER BY cat_nombre ASC`;
     const result = await db.query(sql);
     return result.rows;
   },
 
   async getSubRubros(rubId: number): Promise<any[]> {
-    const sql = `SELECT id as sub_id, nombre as sub_nombre FROM sub_rubros WHERE rubro_id = $1 ORDER BY nombre ASC`;
+    // Actualmente las categorías del portal son nivel 1, pero si hubiera sub-categorías:
+    const sql = `SELECT cat_id as sub_id, cat_nombre as sub_nombre FROM categorias WHERE cat_parent_id = $1 ORDER BY cat_nombre ASC`;
+    // Nota: Si no hay tabla de sub-rubros vinculada a categorias, esto puede devolver vacío.
     const result = await db.query(sql, [rubId]);
     return result.rows;
   }

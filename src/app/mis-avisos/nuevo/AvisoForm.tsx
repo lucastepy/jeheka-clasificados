@@ -24,6 +24,17 @@ export default function AvisoForm({ userData }: { userData?: any }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [displayPrecio, setDisplayPrecio] = useState("");
+
+  const handlePrecioChange = (val: string) => {
+    const numeric = val.replace(/\D/g, "");
+    setPrecio(numeric);
+    if (!numeric) {
+      setDisplayPrecio("");
+      return;
+    }
+    setDisplayPrecio(new Intl.NumberFormat("es-PY").format(parseInt(numeric)));
+  };
 
   // Form State - Pre-filled with userData
   const [titulo, setTitulo] = useState("");
@@ -38,6 +49,12 @@ export default function AvisoForm({ userData }: { userData?: any }) {
   const [ciuId, setCiuId] = useState(userData?.usu_ciudad_id?.toString() || "");
   const [rubId, setRubId] = useState(userData?.usu_rubro_id?.toString() || "");
   const [subRubId, setSubRubId] = useState(userData?.usu_sub_rubro_id?.toString() || "");
+
+  // Track if it's the first render to avoid clearing values
+  const isInitialLoad = useRef(true);
+  useEffect(() => {
+    isInitialLoad.current = false;
+  }, []);
 
   // Master Data State
   const [departamentos, setDepartamentos] = useState<any[]>([]);
@@ -170,7 +187,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
       const res = await createAviso({
         titulo,
         descripcion,
-        precio: parseFloat(precio) || undefined,
+        precio: precio ? parseFloat(precio) : undefined,
         rubroId: parseInt(rubId),
         subRubroId: parseInt(subRubId) || undefined,
         departamentoId: parseInt(depId) || undefined,
@@ -239,10 +256,10 @@ export default function AvisoForm({ userData }: { userData?: any }) {
               <div className="relative group">
                 <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:text-emerald-500 transition-all" />
                 <input
-                  type="number"
-                  placeholder="Ej: 150000"
-                  value={precio}
-                  onChange={(e) => setPrecio(e.target.value)}
+                  type="text"
+                  placeholder="Ej: 150.000"
+                  value={displayPrecio}
+                  onChange={(e) => handlePrecioChange(e.target.value)}
                   className="w-full bg-background/50 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all placeholder:opacity-30"
                 />
               </div>
@@ -277,7 +294,10 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 <select 
                   required
                   value={rubId}
-                  onChange={(e) => { setRubId(e.target.value); setSubRubId(""); }}
+                  onChange={(e) => { 
+                    setRubId(e.target.value); 
+                    if (!isInitialLoad.current) setSubRubId(""); 
+                  }}
                   className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer transition-all"
                 >
                   <option value="">Seleccionar rubro</option>
@@ -324,7 +344,13 @@ export default function AvisoForm({ userData }: { userData?: any }) {
               <select 
                 required
                 value={depId}
-                onChange={(e) => { setDepId(e.target.value); setDisId(""); setCiuId(""); }}
+                onChange={(e) => { 
+                  setDepId(e.target.value); 
+                  if (!isInitialLoad.current) {
+                    setDisId(""); 
+                    setCiuId(""); 
+                  }
+                }}
                 className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
                 <option value="">Departamento</option>

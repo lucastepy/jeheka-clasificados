@@ -92,8 +92,7 @@ export async function getUserDefaultData() {
   if (!session) return null;
 
   const res = await db.query(
-    `SELECT usu_whatsapp, usu_departamento_id as usu_dep_cod, usu_distrito_id as usu_dis_cod, usu_ciudad_id as usu_ciu_cod, 
-            usu_rubro_id as usu_cat_id, usu_sub_rubro_id as usu_sub_cat_id 
+    `SELECT usu_whatsapp, usu_departamento_id, usu_distrito_id, usu_ciudad_id, usu_rubro_id, usu_sub_rubro_id 
      FROM usuarios_portal WHERE usu_id = $1`,
     [session.id]
   );
