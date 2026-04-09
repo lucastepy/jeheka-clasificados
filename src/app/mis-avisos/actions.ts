@@ -31,6 +31,7 @@ export async function createAviso(formData: {
   ciudadId?: number;
   whatsapp?: string;
   imagenes?: string[];
+  planId: number;
 }) {
   const session = await getSession();
   if (!session) return { success: false, message: "No hay sesión activa" };
@@ -47,22 +48,30 @@ export async function createAviso(formData: {
         usu_id, avi_titulo, avi_descripcion, avi_precio, 
         avi_rubro_id, avi_sub_rubro_id, avi_departamento_id, 
         avi_distrito_id, avi_ciudad_id, avi_whatsapp, avi_imagenes, 
-        avi_estado
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'activo')
+        avi_estado, avi_plan_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'activo', $12)
       RETURNING avi_id`,
       [
         session.id, titulo, descripcion, precio, 
         rubroId, subRubroId, departamentoId, 
-        distritoId, ciudadId, whatsapp, JSON.stringify(imagenes || [])
+        distritoId, ciudadId, whatsapp, JSON.stringify(imagenes || []),
+        formData.planId
       ]
     );
 
     revalidatePath("/mis-avisos");
-    return { success: true, message: "¡Aviso publicado exitosamente!", id: res.rows[0].avi_id };
+    return { success: true, message: "Aviso creado exitosamente.", id: res.rows[0].avi_id };
   } catch (error) {
-    console.error("Error creating aviso:", error);
-    return { success: false, message: "Error al publicar aviso." };
+    console.error("Create Aviso Error:", error);
+    return { success: false, message: "Error al crear el aviso." };
   }
+}
+
+export async function getPlanesPortal() {
+  const res = await db.query(
+    "SELECT id, nombre, precio_mensual FROM public.planes WHERE plan_mostrar_portal = TRUE ORDER BY precio_mensual ASC"
+  );
+  return res.rows;
 }
 
 export async function deleteAviso(avisoId: string) {
@@ -76,4 +85,16 @@ export async function deleteAviso(avisoId: string) {
   } catch (error) {
     return { success: false, message: "Error al eliminar." };
   }
+}
+
+export async function getUserDefaultData() {
+  const session = await getSession();
+  if (!session) return null;
+
+  const res = await db.query(
+    `SELECT usu_whatsapp, usu_departamento_id, usu_distrito_id, usu_ciudad_id, usu_rubro_id, usu_sub_rubro_id 
+     FROM usuarios_portal WHERE usu_id = $1`,
+    [session.id]
+  );
+  return res.rows[0];
 }

@@ -3,11 +3,14 @@ import { getSession } from "@/app/login/actions";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Megaphone } from "lucide-react";
 import Link from "next/link";
-import { AvisoForm } from "./AvisoForm";
+import AvisoForm from "./AvisoForm";
+import { getUserDefaultData } from "../actions";
 
 export default async function NuevoAvisoPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const userData = await getUserDefaultData();
 
   return (
     <div className="min-h-screen bg-background pb-20 pt-8">
@@ -31,7 +34,7 @@ export default async function NuevoAvisoPage() {
           </div>
         </div>
 
-        <AvisoForm />
+        <AvisoForm userData={userData} />
       </div>
     </div>
   );

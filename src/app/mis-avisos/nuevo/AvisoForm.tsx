@@ -18,25 +18,26 @@ import {
   Plus
 } from "lucide-react";
 import { toast } from "sonner";
-import { createAviso } from "../actions";
+import { createAviso, getPlanesPortal } from "../actions";
 
-export function AvisoForm() {
+export default function AvisoForm({ userData }: { userData?: any }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
 
-  // Form State
+  // Form State - Pre-filled with userData
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
+  const [whatsapp, setWhatsapp] = useState(userData?.usu_whatsapp || "");
   const [imagenes, setImagenes] = useState<string[]>([]);
+  const [planId, setPlanId] = useState("");
 
-  const [depId, setDepId] = useState("");
-  const [disId, setDisId] = useState("");
-  const [ciuId, setCiuId] = useState("");
-  const [rubId, setRubId] = useState("");
-  const [subRubId, setSubRubId] = useState("");
+  const [depId, setDepId] = useState(userData?.usu_departamento_id?.toString() || "");
+  const [disId, setDisId] = useState(userData?.usu_distrito_id?.toString() || "");
+  const [ciuId, setCiuId] = useState(userData?.usu_ciudad_id?.toString() || "");
+  const [rubId, setRubId] = useState(userData?.usu_rubro_id?.toString() || "");
+  const [subRubId, setSubRubId] = useState(userData?.usu_sub_rubro_id?.toString() || "");
 
   // Master Data State
   const [departamentos, setDepartamentos] = useState<any[]>([]);
@@ -44,11 +45,13 @@ export function AvisoForm() {
   const [ciudades, setCiudades] = useState<any[]>([]);
   const [rubros, setRubros] = useState<any[]>([]);
   const [subRubros, setSubRubros] = useState<any[]>([]);
+  const [planes, setPlanes] = useState<any[]>([]);
 
   // Initial Loads
   useEffect(() => {
     fetch("/api/locations/departamentos").then(r => r.json()).then(setDepartamentos).catch(() => {});
     fetch("/api/rubros").then(r => r.json()).then(setRubros).catch(() => {});
+    getPlanesPortal().then(setPlanes).catch(() => {});
   }, []);
 
   // Cascading Loads
@@ -121,6 +124,11 @@ export function AvisoForm() {
       return;
     }
     
+    if (!planId) {
+      toast.error("Debes seleccionar un plan para tu aviso");
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -134,7 +142,8 @@ export function AvisoForm() {
         distritoId: parseInt(disId) || undefined,
         ciudadId: parseInt(ciuId) || undefined,
         whatsapp,
-        imagenes
+        imagenes,
+        planId: parseInt(planId)
       });
 
       if (res.success) {
@@ -153,7 +162,7 @@ export function AvisoForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Sección 1: Información del Servicio */}
-      <div className="glass p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
+      <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10 relative overflow-hidden">
         <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 opacity-40 flex items-center gap-2">
            <Megaphone className="w-4 h-4" /> Detalles del Servicio
         </h2>
@@ -169,7 +178,7 @@ export function AvisoForm() {
                 placeholder="Ej: Electricista Matriculado 24hs"
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
+                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all placeholder:opacity-30"
               />
             </div>
           </div>
@@ -184,7 +193,7 @@ export function AvisoForm() {
                 placeholder="Cuéntanos más sobre lo que ofreces, tu experiencia, etc..."
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
-                className="w-full bg-background/50 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none resize-none"
+                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none resize-none transition-all placeholder:opacity-30"
               />
             </div>
           </div>
@@ -199,7 +208,7 @@ export function AvisoForm() {
                   placeholder="Ej: 150000"
                   value={precio}
                   onChange={(e) => setPrecio(e.target.value)}
-                  className="w-full bg-background/50 border border-white/5 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
+                  className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all placeholder:opacity-30"
                 />
               </div>
             </div>
@@ -212,7 +221,8 @@ export function AvisoForm() {
                   placeholder="Ej: 0981 123456"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  className="w-full bg-background/50 border border-white/5 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
+                  readOnly
+                  className="w-full bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm outline-none cursor-not-allowed opacity-60"
                 />
               </div>
             </div>
@@ -222,7 +232,7 @@ export function AvisoForm() {
 
       {/* Sección 2: Categoría y Ubicación */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-[2rem] border border-white/5">
+        <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10">
            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 opacity-40 flex items-center gap-2">
               <Briefcase className="w-4 h-4" /> Clasificación
            </h2>
@@ -233,7 +243,7 @@ export function AvisoForm() {
                   required
                   value={rubId}
                   onChange={(e) => { setRubId(e.target.value); setSubRubId(""); }}
-                  className="w-full bg-background/50 border border-white/5 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer"
+                  className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer transition-all"
                 >
                   <option value="">Seleccionar rubro</option>
                   {rubros.map(r => <option key={r.rub_id} value={r.rub_id}>{r.rub_nombre}</option>)}
@@ -245,16 +255,33 @@ export function AvisoForm() {
                   value={subRubId}
                   disabled={!rubId}
                   onChange={(e) => setSubRubId(e.target.value)}
-                  className="w-full bg-background/50 border border-white/5 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 transition-opacity cursor-pointer"
+                  className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 transition-all cursor-pointer"
                 >
                   <option value="">Cualquier sub-rubro</option>
                   {subRubros.map(s => <option key={s.sub_id} value={s.sub_id}>{s.sub_nombre}</option>)}
                 </select>
               </div>
+
+              <div className="pt-4 border-t border-zinc-100 dark:border-white/5 space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Plan del Aviso</label>
+                <select 
+                  required
+                  value={planId}
+                  onChange={(e) => setPlanId(e.target.value)}
+                  className="w-full bg-emerald-500/5 border border-emerald-500/20 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer text-emerald-500 font-bold"
+                >
+                  <option value="">Seleccionar plan de pago</option>
+                  {planes.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre} - Gs. {new Intl.NumberFormat('es-PY').format(p.precio_mensual)}
+                    </option>
+                  ))}
+                </select>
+              </div>
            </div>
         </div>
 
-        <div className="glass p-8 rounded-[2rem] border border-white/5">
+        <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10">
            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 opacity-40 flex items-center gap-2">
               <MapPin className="w-4 h-4" /> Ubicación del Servicio
            </h2>
@@ -263,7 +290,7 @@ export function AvisoForm() {
                 required
                 value={depId}
                 onChange={(e) => { setDepId(e.target.value); setDisId(""); setCiuId(""); }}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer"
+                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
                 <option value="">Departamento</option>
                 {departamentos.map(d => <option key={d.dep_cod} value={d.dep_cod}>{d.dep_dsc}</option>)}
@@ -272,7 +299,7 @@ export function AvisoForm() {
                 disabled={!depId}
                 value={disId}
                 onChange={(e) => { setDisId(e.target.value); setCiuId(""); }}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer"
+                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
                 <option value="">Distrito</option>
                 {distritos.map(d => <option key={d.dis_cod} value={d.dis_cod}>{d.dis_dsc}</option>)}
@@ -281,7 +308,7 @@ export function AvisoForm() {
                 disabled={!disId}
                 value={ciuId}
                 onChange={(e) => setCiuId(e.target.value)}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer"
+                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
                 <option value="">Ciudad / Localidad</option>
                 {ciudades.map(c => <option key={c.ciu_cod} value={c.ciu_cod}>{c.ciu_dsc}</option>)}
@@ -291,7 +318,7 @@ export function AvisoForm() {
       </div>
 
       {/* Sección 3: Galería de Imágenes */}
-      <div className="glass p-8 rounded-[2rem] border border-white/5">
+      <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10">
         <div className="flex justify-between items-center mb-8">
            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
               <Camera className="w-4 h-4" /> Galería de Fotos (Máx 5)
@@ -316,13 +343,13 @@ export function AvisoForm() {
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
            {imagenes.map((img, idx) => (
-             <div key={idx} className="aspect-square rounded-2xl border border-white/10 overflow-hidden relative group">
+             <div key={idx} className="aspect-square rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden relative group">
                 <img src={img} className="w-full h-full object-cover" />
                 <button 
                   onClick={() => removeImagen(idx)}
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                 >
-                  <X className="w-3 h-3" />
+                   <X className="w-3 h-3" />
                 </button>
              </div>
            ))}
@@ -330,7 +357,7 @@ export function AvisoForm() {
              <button 
                type="button"
                onClick={() => fileInputRef.current?.click()}
-               className="aspect-square rounded-2xl border-2 border-dashed border-white/5 flex flex-col items-center justify-center opacity-30 hover:opacity-100 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all text-[9px] font-bold uppercase tracking-widest gap-2"
+               className="aspect-square rounded-2xl border-2 border-dashed border-zinc-200 dark:border-white/10 flex flex-col items-center justify-center opacity-30 hover:opacity-100 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all text-[9px] font-bold uppercase tracking-widest gap-2"
              >
                 <Plus className="w-6 h-6" />
                 <span>Agregar</span>
