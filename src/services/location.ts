@@ -47,10 +47,8 @@ export const rubroService = {
   },
 
   async getSubRubros(rubId: number): Promise<any[]> {
-    // Actualmente las categorías del portal son nivel 1, pero si hubiera sub-categorías:
-    const sql = `SELECT cat_id as sub_id, cat_nombre as sub_nombre FROM categorias WHERE cat_parent_id = $1 ORDER BY cat_nombre ASC`;
-    // Nota: Si no hay tabla de sub-rubros vinculada a categorias, esto puede devolver vacío.
-    const result = await db.query(sql, [rubId]);
-    return result.rows;
+    // Las categorías del portal (categorias) son actualmente de nivel único.
+    // Si en el futuro se requieren sub-categorías, se deberá agregar la columna cat_parent_id.
+    return [];
   }
 };
