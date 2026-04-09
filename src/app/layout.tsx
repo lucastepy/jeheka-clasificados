@@ -28,7 +28,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("session")?.value;
+  const sessionToken = cookieStore.get("jk_auth_session")?.value;
   let session = null;
   if (sessionToken) {
     try {

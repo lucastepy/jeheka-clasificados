@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("session")?.value;
+  const token = cookieStore.get("jk_auth_session")?.value;
   
   if (!token) {
     return NextResponse.json({ session: null });

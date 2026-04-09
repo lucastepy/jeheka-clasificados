@@ -10,20 +10,13 @@ interface HeaderActionsProps {
 }
 
 export function HeaderActions({ initialSession }: HeaderActionsProps) {
-  const [session, setSession] = useState(initialSession);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <div className="flex items-center gap-2 md:gap-4 opacity-0">
-        <ThemeToggle />
-      </div>
-    );
-  }
+  const session = initialSession;
 
   return (
     <div className="flex items-center gap-2 md:gap-4 transition-opacity duration-300">
@@ -32,7 +25,7 @@ export function HeaderActions({ initialSession }: HeaderActionsProps) {
           Portal
         </span>
       )}
-      <ThemeToggle />
+      {mounted && <ThemeToggle />}
       
       {!session ? (
         <>
