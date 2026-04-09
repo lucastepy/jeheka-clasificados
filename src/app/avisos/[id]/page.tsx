@@ -5,15 +5,18 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function AvisoDetailPage({ params }: { params: { id: string } }) {
-  console.log("Buscando detalle de aviso ID:", params.id);
-  const aviso = await getAvisoById(params.id);
+export default async function AvisoDetailPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
+  
+  console.log("Buscando detalle de aviso ID:", id);
+  const aviso = await getAvisoById(id);
 
   if (!aviso) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen opacity-40">
         <p className="text-xl font-bold uppercase tracking-widest">Aviso no encontrado</p>
-        <p className="text-[10px] opacity-50 mt-2">ID: {params.id}</p>
+        <p className="text-[10px] opacity-50 mt-2">ID: {id || "No detectado"}</p>
         <Link href="/" className="mt-4 text-emerald-500 underline text-sm font-bold uppercase tracking-widest">Volver al inicio</Link>
       </div>
     );
