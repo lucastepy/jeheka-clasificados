@@ -5,7 +5,10 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 import { Toaster } from "sonner";
-import { getSession } from "@/app/login/actions";
+import { cookies } from "next/headers";
+import { decrypt } from "@/app/login/actions";
+
+export const dynamic = "force-dynamic";
 import { UserMenu } from "@/components/UserMenu";
 
 export const metadata: Metadata = {
@@ -22,7 +25,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("jeheka_session_portal")?.value;
+  let session = null;
+  if (sessionToken) {
+    try {
+      session = await decrypt(sessionToken);
+    } catch (e) {
+      session = null;
+    }
+  }
 
   return (
     <html lang="es" suppressHydrationWarning>

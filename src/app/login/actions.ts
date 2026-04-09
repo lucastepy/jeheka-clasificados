@@ -28,9 +28,9 @@ export async function decrypt(input: string): Promise<any> {
 
 export async function getSession() {
   try {
-    const session = (await cookies()).get("session")?.value;
-    if (!session) return null;
-    return await decrypt(session);
+    const sessionToken = (await cookies()).get("jeheka_session_portal")?.value;
+    if (!sessionToken) return null;
+    return await decrypt(sessionToken);
   } catch (err) {
     console.error("Session Decrypt Error:", err);
     return null;
@@ -39,7 +39,7 @@ export async function getSession() {
 
 export async function logoutUser() {
   const cookieStore = await cookies();
-  cookieStore.delete("session");
+  cookieStore.delete("jeheka_session_portal");
   revalidatePath("/");
 }
 
@@ -115,7 +115,7 @@ export async function loginUser(formData: { email: string; password: string }) {
     const userDetails = await db.query("SELECT usu_foto_url FROM usuarios_portal WHERE usu_id = $1", [user.usu_id]);
     const sessionToken = await encrypt({ id: user.usu_id, name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url });
     const cookieStore = await cookies();
-    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
+    cookieStore.set("jeheka_session_portal", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
     revalidatePath("/", "layout");
 
     return { success: true, message: "¡Bienvenido de nuevo!", user: { name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url } };
@@ -137,7 +137,7 @@ export async function finalizePasswordChange(formData: { userId: string; newPass
 
     const sessionToken = await encrypt({ id: userId, name: res.rows[0].usu_nombre });
     const cookieStore = await cookies();
-    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
+    cookieStore.set("jeheka_session_portal", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
     revalidatePath("/", "layout");
 
     return { success: true, message: "Cambio exitoso." };
@@ -244,7 +244,7 @@ export async function updateUserData(formData: {
       fotoUrl: fotoUrl 
     });
     const cookieStore = await cookies();
-    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
+    cookieStore.set("jeheka_session_portal", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
     revalidatePath("/", "layout");
 
     revalidatePath("/mis-datos");
