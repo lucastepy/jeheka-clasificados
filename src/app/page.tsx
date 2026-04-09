@@ -1,11 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Search, MapPin, Grid, Heart, ChevronRight, Zap, Target, Star, ShieldCheck } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, MapPin, Grid, Heart, ChevronRight, Zap, Target, Star, ShieldCheck, Clock, Eye, ImageIcon, Phone } from "lucide-react";
 
 export default function HomePage() {
   const [isFocused, setIsFocused] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  // Initial load of featured or recent ads
+  useEffect(() => {
+    handleSearch();
+  }, []);
+
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setLoading(true);
+    setSearched(true);
+    try {
+      const res = await fetch(`/api/search?query=${encodeURIComponent(query)}&limit=12`);
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="flex flex-col min-h-screen">
@@ -55,12 +79,14 @@ export default function HomePage() {
             : "bg-slate-500/5 border border-black/5 dark:border-white/5 shadow-md"
           }`}
         >
-          <div className="flex flex-col md:flex-row items-stretch gap-1.5">
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-stretch gap-1.5">
             <div className="flex-[2] relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
               <input
                 type="text"
-                placeholder="¿Qué servicio buscas?"
+                placeholder="¿Qué servicio buscas? Ej: Electricista..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 className="w-full bg-transparent border-none focus:ring-0 text-sm py-3 pl-11 pr-4 rounded-xl outline-none"
@@ -73,15 +99,15 @@ export default function HomePage() {
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
               <input
                 type="text"
-                placeholder="Ubicación"
+                placeholder="Toda la red"
                 className="w-full bg-transparent border-none focus:ring-0 text-sm py-3 pl-11 pr-4 rounded-xl outline-none"
               />
             </div>
 
-            <button className="btn-premium px-10 py-3 text-xs uppercase tracking-widest font-bold shrink-0">
+            <button type="submit" className="btn-premium px-10 py-3 text-xs uppercase tracking-widest font-bold shrink-0">
               Buscar
             </button>
-          </div>
+          </form>
         </motion.div>
 
         {/* Quick Tags */}
@@ -108,6 +134,81 @@ export default function HomePage() {
             <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Feedback Real</span>
           </div>
         </div>
+      </section>
+
+      {/* Search Results */}
+      <section className="py-16 px-6 lg:px-12 max-w-6xl mx-auto w-full min-h-[400px]">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-[900] tracking-tight uppercase leading-none">
+              {searched && query ? `Resultados para "${query}"` : "Anuncios Recientes"}
+            </h2>
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mt-2">Explora los mejores servicios disponibles</p>
+          </div>
+          
+          {loading && <div className="animate-pulse flex gap-2 items-center text-[10px] font-bold uppercase text-emerald-500"><div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"/> Buscando...</div>}
+        </div>
+
+        {results.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <AnimatePresence mode="popLayout">
+              {results.map((aviso, idx) => {
+                const imagenes = Array.isArray(aviso.avi_imagenes) ? aviso.avi_imagenes : [];
+                return (
+                  <motion.div
+                    key={aviso.avi_id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="glass rounded-[2rem] border border-white/5 overflow-hidden flex flex-col group h-full shadow-lg hover:shadow-emerald-500/5 transition-all duration-500"
+                  >
+                    <div className="h-44 bg-slate-500/10 relative overflow-hidden">
+                      {imagenes[0] ? (
+                        <img src={imagenes[0]} alt={aviso.avi_titulo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center opacity-20">
+                          <ImageIcon className="w-10 h-10 mb-2" />
+                          <span className="text-[8px] font-bold uppercase tracking-widest">Sin Imagen</span>
+                        </div>
+                      )}
+                      <div className="absolute top-4 right-4 px-2.5 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 text-[8px] font-bold uppercase tracking-widest text-emerald-400">
+                        {aviso.vendedor_nombre}
+                      </div>
+                    </div>
+
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-md font-bold leading-tight mb-3 group-hover:text-emerald-500 transition-colors uppercase line-clamp-2">
+                        {aviso.avi_titulo}
+                      </h3>
+                      
+                      <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-black text-emerald-500">
+                             {aviso.avi_precio ? `Gs. ${new Intl.NumberFormat('es-PY').format(aviso.avi_precio)}` : "Consultar"}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                           <button className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all">
+                              <Phone className="w-4 h-4" />
+                           </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        ) : (
+          !loading && (
+            <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
+               <Search className="w-16 h-16 mb-4" />
+               <p className="text-sm font-bold uppercase tracking-widest">No encontramos anuncios que coincidan</p>
+               <button onClick={() => { setQuery(""); handleSearch(); }} className="mt-4 text-emerald-400 text-[10px] font-bold uppercase tracking-widest underline">Ver todos los anuncios</button>
+            </div>
+          )
+        )}
       </section>
 
       {/* Category Grid */}

@@ -24,10 +24,11 @@ export const searchService = {
     let sql = `
       SELECT 
         a.avi_id, a.avi_titulo, a.avi_descripcion, a.avi_precio, a.avi_imagenes,
-        c.cli_nombre_comercial, c.cli_logo, c.cli_verificado,
+        u.usu_nombre as vendedor_nombre, 
+        u.usu_foto_url as vendedor_foto,
         ts_rank(a.avi_search_vector, web_search_to_tsquery('spanish', $1)) as rank
       FROM avisos a
-      JOIN v_clientes_info c ON a.cli_id = c.cli_id
+      JOIN usuarios_portal u ON a.usu_id = u.usu_id
       WHERE a.avi_estado = 'AC'
     `;
 
