@@ -162,7 +162,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Sección 1: Información del Servicio */}
-      <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10 relative overflow-hidden">
+        <div className="glass p-8 rounded-[2rem] border border-white/10">
         <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 opacity-40 flex items-center gap-2">
            <Megaphone className="w-4 h-4" /> Detalles del Servicio
         </h2>
@@ -178,7 +178,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 placeholder="Ej: Electricista Matriculado 24hs"
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
-                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all placeholder:opacity-30"
+                  className="w-full bg-background/50 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all placeholder:opacity-30"
               />
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 placeholder="Cuéntanos más sobre lo que ofreces, tu experiencia, etc..."
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
-                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none resize-none transition-all placeholder:opacity-30"
+                className="w-full bg-background/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none resize-none transition-all placeholder:opacity-30"
               />
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                   placeholder="Ej: 150000"
                   value={precio}
                   onChange={(e) => setPrecio(e.target.value)}
-                  className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all placeholder:opacity-30"
+                  className="w-full bg-background/50 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none transition-all placeholder:opacity-30"
                 />
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   readOnly
-                  className="w-full bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm outline-none cursor-not-allowed opacity-60"
+                  className="w-full bg-background/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm outline-none cursor-not-allowed opacity-50"
                 />
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                   required
                   value={rubId}
                   onChange={(e) => { setRubId(e.target.value); setSubRubId(""); }}
-                  className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer transition-all"
+                  className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer transition-all"
                 >
                   <option value="">Seleccionar rubro</option>
                   {rubros.map(r => <option key={r.rub_id} value={r.rub_id}>{r.rub_nombre}</option>)}
@@ -262,7 +262,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 </select>
               </div>
 
-              <div className="pt-4 border-t border-zinc-100 dark:border-white/5 space-y-2">
+              <div className="pt-4 space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Plan del Aviso</label>
                 <select 
                   required
@@ -281,7 +281,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
            </div>
         </div>
 
-        <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10">
+        <div className="glass p-8 rounded-[2rem] border border-white/10">
            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 opacity-40 flex items-center gap-2">
               <MapPin className="w-4 h-4" /> Ubicación del Servicio
            </h2>
@@ -290,7 +290,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 required
                 value={depId}
                 onChange={(e) => { setDepId(e.target.value); setDisId(""); setCiuId(""); }}
-                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
+                className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
                 <option value="">Departamento</option>
                 {departamentos.map(d => <option key={d.dep_cod} value={d.dep_cod}>{d.dep_dsc}</option>)}
@@ -299,7 +299,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 disabled={!depId}
                 value={disId}
                 onChange={(e) => { setDisId(e.target.value); setCiuId(""); }}
-                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
+                className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
                 <option value="">Distrito</option>
                 {distritos.map(d => <option key={d.dis_cod} value={d.dis_cod}>{d.dis_dsc}</option>)}
@@ -308,7 +308,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 disabled={!disId}
                 value={ciuId}
                 onChange={(e) => setCiuId(e.target.value)}
-                className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
+                className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
                 <option value="">Ciudad / Localidad</option>
                 {ciudades.map(c => <option key={c.ciu_cod} value={c.ciu_cod}>{c.ciu_dsc}</option>)}
@@ -318,7 +318,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
       </div>
 
       {/* Sección 3: Galería de Imágenes */}
-      <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10">
+      <div className="glass p-8 rounded-[2rem] border border-white/10">
         <div className="flex justify-between items-center mb-8">
            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
               <Camera className="w-4 h-4" /> Galería de Fotos (Máx 5)
