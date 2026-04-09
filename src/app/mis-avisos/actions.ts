@@ -9,10 +9,10 @@ export async function getMisAvisos() {
   if (!session) return [];
 
   const res = await db.query(
-    `SELECT a.*, r.cat_nombre as rubro_nombre, s.cat_nombre as sub_rubro_nombre
+    `SELECT a.*, r.nombre as rubro_nombre, s.nombre as sub_rubro_nombre
      FROM avisos a
-     LEFT JOIN categorias r ON a.avi_cat_id = r.cat_id
-     LEFT JOIN categorias s ON a.avi_sub_cat_id = s.cat_id
+     LEFT JOIN rubros r ON a.avi_rubro_id = r.id
+     LEFT JOIN sub_rubros s ON a.avi_sub_rubro_id = s.id
      WHERE a.usu_id = $1
      ORDER BY a.avi_fec_alta DESC`,
     [session.id]
@@ -46,7 +46,7 @@ export async function createAviso(formData: {
     const res = await db.query(
       `INSERT INTO avisos (
         usu_id, avi_titulo, avi_descripcion, avi_precio, 
-        avi_cat_id, avi_sub_cat_id, avi_dep_cod, 
+        avi_rubro_id, avi_sub_rubro_id, avi_dep_cod, 
         avi_dis_cod, avi_ciu_cod, avi_whatsapp, avi_imagenes, 
         avi_estado, avi_plan_id, avi_moneda
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'AC', $12, 'PY')
