@@ -27,9 +27,14 @@ export async function decrypt(input: string): Promise<any> {
 }
 
 export async function getSession() {
-  const session = (await cookies()).get("session")?.value;
-  if (!session) return null;
-  return await decrypt(session);
+  try {
+    const session = (await cookies()).get("session")?.value;
+    if (!session) return null;
+    return await decrypt(session);
+  } catch (err) {
+    console.error("Session Decrypt Error:", err);
+    return null;
+  }
 }
 
 export async function logoutUser() {
@@ -110,7 +115,8 @@ export async function loginUser(formData: { email: string; password: string }) {
     const userDetails = await db.query("SELECT usu_foto_url FROM usuarios_portal WHERE usu_id = $1", [user.usu_id]);
     const sessionToken = await encrypt({ id: user.usu_id, name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url });
     const cookieStore = await cookies();
-    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 2, path: "/", sameSite: "lax" });
+    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
+    revalidatePath("/", "layout");
 
     return { success: true, message: "¡Bienvenido de nuevo!", user: { name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url } };
   } catch (error) {
@@ -131,7 +137,8 @@ export async function finalizePasswordChange(formData: { userId: string; newPass
 
     const sessionToken = await encrypt({ id: userId, name: res.rows[0].usu_nombre });
     const cookieStore = await cookies();
-    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 2, path: "/", sameSite: "lax" });
+    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
+    revalidatePath("/", "layout");
 
     return { success: true, message: "Cambio exitoso." };
   } catch (error) {
@@ -237,7 +244,8 @@ export async function updateUserData(formData: {
       fotoUrl: fotoUrl 
     });
     const cookieStore = await cookies();
-    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 2, path: "/", sameSite: "lax" });
+    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
+    revalidatePath("/", "layout");
 
     revalidatePath("/mis-datos");
     revalidatePath("/");

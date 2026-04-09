@@ -32,7 +32,7 @@ export function UserMenu({ user }: UserMenuProps) {
           {user.fotoUrl ? (
             <img src={user.fotoUrl} alt={user.name} className="w-full h-full object-cover" />
           ) : (
-            user.name.charAt(0).toUpperCase()
+            (user?.name ? user.name.charAt(0).toUpperCase() : "U")
           )}
         </div>
         <div className="flex flex-col items-start">
