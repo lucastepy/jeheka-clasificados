@@ -40,7 +40,7 @@ export const searchService = {
     // Filtro de texto (optimizado con tsquery)
     if (query && query.trim() !== "") {
       params.push(query);
-      sql += ` AND a.avi_search_vector @@ web_search_to_tsquery('spanish', $${params.length})`;
+      sql += ` AND a.avi_search_vector @@ plainto_tsquery('spanish', $${params.length}::text)`;
     } 
 
     if (categoria) {
@@ -63,7 +63,7 @@ export const searchService = {
     }
 
     if (query && query.trim() !== "") {
-      sql += ` ORDER BY ts_rank(a.avi_search_vector, web_search_to_tsquery('spanish', $1)) DESC, a.avi_fec_alta DESC`;
+      sql += ` ORDER BY ts_rank(a.avi_search_vector, plainto_tsquery('spanish', $1::text)) DESC, a.avi_fec_alta DESC`;
     } else {
       sql += ` ORDER BY a.avi_fec_alta DESC`;
     }
