@@ -42,12 +42,11 @@ export const searchService = {
 
     if (categoria) {
       params.push(categoria);
-      sql += ` AND a.avi_rubro_id = $${params.length}`;
+      sql += ` AND a.avi_cat_id = $${params.length}`;
     }
-
     if (ciudad) {
       params.push(ciudad);
-      sql += ` AND a.avi_ciudad_id = $${params.length}`;
+      sql += ` AND a.avi_ciu_cod = $${params.length}`;
     }
 
     if (min_precio) {
