@@ -47,6 +47,11 @@ export default function AvisoForm({ userData }: { userData?: any }) {
   const [subRubros, setSubRubros] = useState<any[]>([]);
   const [planes, setPlanes] = useState<any[]>([]);
 
+  // Loading States for Cascading
+  const [loadingDistritos, setLoadingDistritos] = useState(false);
+  const [loadingCiudades, setLoadingCiudades] = useState(false);
+  const [loadingSubRubros, setLoadingSubRubros] = useState(false);
+
   // Initial Loads
   useEffect(() => {
     fetch("/api/locations/departamentos").then(r => r.json()).then(setDepartamentos).catch(() => {});
@@ -57,20 +62,50 @@ export default function AvisoForm({ userData }: { userData?: any }) {
   // Cascading Loads
   useEffect(() => {
     if (depId) {
-      fetch(`/api/locations/distritos?dep_cod=${depId}`).then(r => r.json()).then(setDistritos).catch(() => {});
-    } else setDistritos([]);
+      setLoadingDistritos(true);
+      fetch(`/api/locations/distritos?dep_cod=${depId}`)
+        .then(r => r.json())
+        .then(data => {
+          setDistritos(data);
+          setLoadingDistritos(false);
+        })
+        .catch(() => setLoadingDistritos(false));
+    } else {
+      setDistritos([]);
+      setLoadingDistritos(false);
+    }
   }, [depId]);
 
   useEffect(() => {
     if (disId) {
-      fetch(`/api/locations/ciudades?dis_cod=${disId}`).then(r => r.json()).then(setCiudades).catch(() => {});
-    } else setCiudades([]);
+      setLoadingCiudades(true);
+      fetch(`/api/locations/ciudades?dis_cod=${disId}`)
+        .then(r => r.json())
+        .then(data => {
+          setCiudades(data);
+          setLoadingCiudades(false);
+        })
+        .catch(() => setLoadingCiudades(false));
+    } else {
+      setCiudades([]);
+      setLoadingCiudades(false);
+    }
   }, [disId]);
 
   useEffect(() => {
     if (rubId) {
-      fetch(`/api/sub-rubros?rub_id=${rubId}`).then(r => r.json()).then(setSubRubros).catch(() => {});
-    } else setSubRubros([]);
+      setLoadingSubRubros(true);
+      fetch(`/api/sub-rubros?rub_id=${rubId}`)
+        .then(r => r.json())
+        .then(data => {
+          setSubRubros(data);
+          setLoadingSubRubros(false);
+        })
+        .catch(() => setLoadingSubRubros(false));
+    } else {
+      setSubRubros([]);
+      setLoadingSubRubros(false);
+    }
   }, [rubId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,9 +290,9 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                   value={subRubId}
                   disabled={!rubId}
                   onChange={(e) => setSubRubId(e.target.value)}
-                  className="w-full bg-background/50 border border-zinc-200 dark:border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 transition-all cursor-pointer"
+                  className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 transition-all cursor-pointer"
                 >
-                  <option value="">Cualquier sub-rubro</option>
+                  <option value="">{loadingSubRubros ? "Cargando sub-rubros..." : "Cualquier sub-rubro"}</option>
                   {subRubros.map(s => <option key={s.sub_id} value={s.sub_id}>{s.sub_nombre}</option>)}
                 </select>
               </div>
@@ -301,7 +336,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 onChange={(e) => { setDisId(e.target.value); setCiuId(""); }}
                 className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
-                <option value="">Distrito</option>
+                <option value="">{loadingDistritos ? "Cargando distritos..." : "Distrito"}</option>
                 {distritos.map(d => <option key={d.dis_cod} value={d.dis_cod}>{d.dis_dsc}</option>)}
               </select>
               <select 
@@ -310,7 +345,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 onChange={(e) => setCiuId(e.target.value)}
                 className="w-full bg-background/50 border border-white/10 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-20 cursor-pointer transition-all"
               >
-                <option value="">Ciudad / Localidad</option>
+                <option value="">{loadingCiudades ? "Cargando ciudades..." : "Ciudad / Localidad"}</option>
                 {ciudades.map(c => <option key={c.ciu_cod} value={c.ciu_cod}>{c.ciu_dsc}</option>)}
               </select>
            </div>

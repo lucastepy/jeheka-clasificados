@@ -35,6 +35,11 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   const [ciudades, setCiudades] = useState<any[]>([]);
   const [rubros, setRubros] = useState<any[]>([]);
   const [subRubros, setSubRubros] = useState<any[]>([]);
+  
+  // Loading States
+  const [loadingDistritos, setLoadingDistritos] = useState(false);
+  const [loadingCiudades, setLoadingCiudades] = useState(false);
+  const [loadingSubRubros, setLoadingSubRubros] = useState(false);
 
   // Initial Load
   useEffect(() => {
@@ -42,28 +47,52 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     fetch("/api/rubros").then(r => r.json()).then(setRubros).catch(() => {});
   }, []);
 
-  // Cascading Loads ... (Keeping existing logic)
+  // Cascading Loads
   useEffect(() => {
     if (depId) {
-      fetch(`/api/locations/distritos?dep_cod=${depId}`).then(r => r.json()).then(setDistritos).catch(() => {});
+      setLoadingDistritos(true);
+      fetch(`/api/locations/distritos?dep_cod=${depId}`)
+        .then(r => r.json())
+        .then(data => {
+          setDistritos(data);
+          setLoadingDistritos(false);
+        })
+        .catch(() => setLoadingDistritos(false));
     } else {
       setDistritos([]);
+      setLoadingDistritos(false);
     }
   }, [depId]);
 
   useEffect(() => {
     if (disId) {
-      fetch(`/api/locations/ciudades?dis_cod=${disId}`).then(r => r.json()).then(setCiudades).catch(() => {});
+      setLoadingCiudades(true);
+      fetch(`/api/locations/ciudades?dis_cod=${disId}`)
+        .then(r => r.json())
+        .then(data => {
+          setCiudades(data);
+          setLoadingCiudades(false);
+        })
+        .catch(() => setLoadingCiudades(false));
     } else {
       setCiudades([]);
+      setLoadingCiudades(false);
     }
   }, [disId]);
 
   useEffect(() => {
     if (rubId) {
-      fetch(`/api/sub-rubros?rub_id=${rubId}`).then(r => r.json()).then(setSubRubros).catch(() => {});
+      setLoadingSubRubros(true);
+      fetch(`/api/sub-rubros?rub_id=${rubId}`)
+        .then(r => r.json())
+        .then(data => {
+          setSubRubros(data);
+          setLoadingSubRubros(false);
+        })
+        .catch(() => setLoadingSubRubros(false));
     } else {
       setSubRubros([]);
+      setLoadingSubRubros(false);
     }
   }, [rubId]);
 
@@ -149,7 +178,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Sección: Información Básica */}
-      <div className="glass p-6 md:p-8 rounded-3xl border border-white/5 relative overflow-hidden">
+      <div className="glass p-6 md:p-8 rounded-3xl border border-white/10 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
           <User className="w-32 h-32" />
         </div>
@@ -201,7 +230,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
+                  className="w-full bg-background/50 border border-white/10 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-1 focus:ring-emerald-500/30 transition-all outline-none"
                 />
               </div>
             </div>
@@ -280,7 +309,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
               <select 
                 value={depId}
                 onChange={(e) => { setDepId(e.target.value); setDisId(""); setCiuId(""); }}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
+                className="w-full bg-background/50 border border-white/10 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
               >
                  <option value="">Seleccionar...</option>
                  {departamentos.map(d => <option key={d.dep_cod} value={d.dep_cod}>{d.dep_dsc}</option>)}
@@ -292,9 +321,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                 disabled={!depId}
                 value={disId}
                 onChange={(e) => { setDisId(e.target.value); setCiuId(""); }}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
+                className="w-full bg-background/50 border border-white/10 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
               >
-                 <option value="">Seleccionar...</option>
+                 <option value="">{loadingDistritos ? "Cargando..." : "Seleccionar..."}</option>
                  {distritos.map(d => <option key={d.dis_cod} value={d.dis_cod}>{d.dis_dsc}</option>)}
               </select>
             </div>
@@ -304,9 +333,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                 disabled={!disId}
                 value={ciuId}
                 onChange={(e) => setCiuId(e.target.value)}
-                className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
+                className="w-full bg-background/50 border border-white/10 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
               >
-                 <option value="">Seleccionar...</option>
+                 <option value="">{loadingCiudades ? "Cargando..." : "Seleccionar..."}</option>
                  {ciudades.map(c => <option key={c.ciu_cod} value={c.ciu_cod}>{c.ciu_dsc}</option>)}
               </select>
             </div>
@@ -326,7 +355,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             <select 
               value={rubId}
               onChange={(e) => { setRubId(e.target.value); setSubRubId(""); }}
-              className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
+              className="w-full bg-background/50 border border-white/10 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none"
             >
                <option value="">Seleccionar rubro</option>
                {rubros.map(r => <option key={r.rub_id} value={r.rub_id}>{r.rub_nombre}</option>)}
@@ -338,9 +367,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
               disabled={!rubId}
               value={subRubId}
               onChange={(e) => setSubRubId(e.target.value)}
-              className="w-full bg-background/50 border border-white/5 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
+              className="w-full bg-background/50 border border-white/10 rounded-xl py-3.5 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none disabled:opacity-30"
             >
-               <option value="">Seleccionar sub-rubro</option>
+               <option value="">{loadingSubRubros ? "Cargando..." : "Seleccionar sub-rubro"}</option>
                {subRubros.map(s => <option key={s.sub_id} value={s.sub_id}>{s.sub_nombre}</option>)}
             </select>
           </div>
