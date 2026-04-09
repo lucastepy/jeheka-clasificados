@@ -21,25 +21,28 @@ export const searchService = {
     const params: any[] = [];
     
     // Base query using public schema
+    /** 
+     * Base query: 
+     * - LEFT JOIN con usuarios_portal (para anuncios del portal)
+     * - LEFT JOIN con v_clientes (para anuncios profesionales legacy)
+     * - Soporta estados 'AC' (nuevo estándar) y 'activo' (legacy)
+     */
     let sql = `
       SELECT 
         a.avi_id, a.avi_titulo, a.avi_descripcion, a.avi_precio, a.avi_imagenes,
-        u.usu_nombre as vendedor_nombre, 
-        u.usu_foto_url as vendedor_foto,
-        ts_rank(a.avi_search_vector, web_search_to_tsquery('spanish', $1)) as rank
+        COALESCE(u.usu_nombre, c.cli_nombre_comercial, 'Anunciante') as vendedor_nombre, 
+        COALESCE(u.usu_foto_url, c.cli_logo) as vendedor_foto
       FROM avisos a
-      JOIN usuarios_portal u ON a.usu_id = u.usu_id
-      WHERE a.avi_estado = 'AC'
+      LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
+      LEFT JOIN v_clientes_info c ON a.cli_id = c.cli_id
+      WHERE (a.avi_estado = 'AC' OR a.avi_estado = 'activo')
     `;
 
     // Filtro de texto (optimizado con tsquery)
-    if (query) {
+    if (query && query.trim() !== "") {
       params.push(query);
       sql += ` AND a.avi_search_vector @@ web_search_to_tsquery('spanish', $${params.length})`;
-    } else {
-      params.push(''); // queries sin texto
-      sql = sql.replace("ts_rank(a.avi_search_vector, web_search_to_tsquery('spanish', $1))", "0");
-    }
+    } 
 
     if (categoria) {
       params.push(categoria);
@@ -60,7 +63,13 @@ export const searchService = {
       sql += ` AND a.avi_precio <= $${params.length}`;
     }
 
-    sql += ` ORDER BY rank DESC, a.avi_fec_alta DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    if (query && query.trim() !== "") {
+      sql += ` ORDER BY ts_rank(a.avi_search_vector, web_search_to_tsquery('spanish', $1)) DESC, a.avi_fec_alta DESC`;
+    } else {
+      sql += ` ORDER BY a.avi_fec_alta DESC`;
+    }
+    
+    sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(limit, offset);
 
     const result = await db.query(sql, params);
