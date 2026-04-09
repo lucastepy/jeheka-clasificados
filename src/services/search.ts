@@ -29,11 +29,12 @@ export const searchService = {
      */
     let sql = `
       SELECT 
-        a.avi_id, a.avi_titulo, a.avi_descripcion, a.avi_precio, a.avi_imagenes,
+        a.avi_id, a.avi_titulo, a.avi_descripcion, a.avi_precio, a.avi_imagenes, a.avi_visitas,
         u.usu_nombre as vendedor_nombre, 
         u.usu_foto_url as vendedor_foto,
         c.ciu_dsc as ciudad_nombre,
-        d.dep_dsc as departamento_nombre
+        d.dep_dsc as departamento_nombre,
+        (SELECT AVG(calificacion) FROM avisos_calificaciones WHERE avi_id = a.avi_id) as rating_promedio
       FROM avisos a
       LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
       LEFT JOIN departamentos d ON a.avi_departamento_id = d.dep_cod
@@ -66,11 +67,8 @@ export const searchService = {
       sql += ` AND a.avi_precio <= $${params.length}`;
     }
 
-    if (query && query.trim() !== "") {
-      sql += ` ORDER BY ts_rank(a.avi_search_vector, plainto_tsquery('spanish', $1::text)) DESC, a.avi_fec_alta DESC`;
-    } else {
-      sql += ` ORDER BY a.avi_fec_alta DESC`;
-    }
+    // Ordenamiento Premium: 1. Rating, 2. Visitas, 3. Fecha
+    sql += ` ORDER BY rating_promedio DESC NULLS LAST, a.avi_visitas DESC NULLS LAST, a.avi_fec_alta DESC`;
     
     sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(limit, offset);

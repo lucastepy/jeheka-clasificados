@@ -141,13 +141,19 @@ export async function getUserDefaultData() {
 
 export async function getAvisoById(id: string) {
   try {
+    // 1. Incrementar contador de visitas
+    await db.query("UPDATE avisos SET avi_visitas = COALESCE(avi_visitas, 0) + 1 WHERE avi_id = $1", [id]);
+
+    // 2. Obtener detalle completo con promedio de rating
     const res = await db.query(
       `SELECT a.*, 
               u.usu_nombre, u.usu_whatsapp as usu_tel, u.usu_biografia, u.usu_foto_url, u.usu_email, u.usu_direccion, 
               r.nombre as rubro_nombre,
               d.dep_dsc as departamento_nombre,
               dist.dis_dsc as distrito_nombre,
-              c.ciu_dsc as ciudad_nombre
+              c.ciu_dsc as ciudad_nombre,
+              (SELECT AVG(calificacion) FROM avisos_calificaciones WHERE avi_id = a.avi_id) as rating_promedio,
+              (SELECT COUNT(*) FROM avisos_calificaciones WHERE avi_id = a.avi_id) as rating_cantidad
        FROM avisos a
        LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
        LEFT JOIN rubros r ON a.avi_rubro_id = r.id
@@ -161,5 +167,25 @@ export async function getAvisoById(id: string) {
   } catch (error) {
     console.error("Error getAvisoById:", error);
     return null;
+  }
+}
+
+export async function rateAviso(avisoId: string, rating: number, comentario?: string) {
+  const session = await getSession();
+  if (!session) return { success: false, message: "Debes iniciar sesión para calificar" };
+
+  try {
+    await db.query(
+      `INSERT INTO avisos_calificaciones (avi_id, usu_id, calificacion, comentario)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (avi_id, usu_id) 
+       DO UPDATE SET calificacion = EXCLUDED.calificacion, comentario = EXCLUDED.comentario, fecha_alta = CURRENT_TIMESTAMP`,
+      [avisoId, session.id, rating, comentario]
+    );
+    revalidatePath(`/avisos/${avisoId}`);
+    return { success: true, message: "¡Gracias por tu calificación!" };
+  } catch (error) {
+    console.error("Error rating aviso:", error);
+    return { success: false, message: "Error al guardar la calificación" };
   }
 }

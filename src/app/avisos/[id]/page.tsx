@@ -1,10 +1,11 @@
 import React from "react";
 import Link from "next/link";
-import { ChevronLeft, MapPin, Calendar } from "lucide-react";
+import { ChevronLeft, MapPin, Calendar, Eye } from "lucide-react";
 import { getAvisoById } from "../../mis-avisos/actions";
 import AvisoGallery from "./AvisoGallery";
 import AvisoContact from "./AvisoContact";
 import AvisoProfile from "./AvisoProfile";
+import AvisoRating from "./AvisoRating";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,7 @@ export default async function AvisoDetailPage({ params }: { params: Promise<{ id
                 {aviso.rubro_nombre || "Servicio"}
               </span>
               <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest">
-                Ref: {aviso.avi_id.slice(0, 8)}
+                Ref: {String(aviso.avi_id).slice(0, 8)}
               </span>
             </div>
 
@@ -63,8 +64,14 @@ export default async function AvisoDetailPage({ params }: { params: Promise<{ id
               {aviso.avi_titulo}
             </h1>
 
-            <div className="flex items-center gap-2 text-3xl font-black text-emerald-500 mb-8">
-              {aviso.avi_precio ? `Gs. ${new Intl.NumberFormat('es-PY').format(aviso.avi_precio)}` : "Precio a convenir"}
+            <div className="flex items-center justify-between mb-8">
+              <div className="text-3xl font-black text-emerald-500">
+                {aviso.avi_precio ? `Gs. ${new Intl.NumberFormat('es-PY').format(aviso.avi_precio)}` : "Precio a convenir"}
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-500/5 border border-white/5 opacity-40">
+                <Eye className="w-3.5 h-3.5" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">{aviso.avi_visitas || 1} vistas</span>
+              </div>
             </div>
 
             <div className="flex flex-col gap-4 mb-8 p-6 rounded-3xl bg-slate-500/5 border border-white/5">
@@ -80,7 +87,12 @@ export default async function AvisoDetailPage({ params }: { params: Promise<{ id
               </div>
             </div>
 
-            <div className="mb-8">
+            <div className="mb-8 flex flex-col gap-6">
+              <AvisoRating 
+                avisoId={aviso.avi_id} 
+                promedio={aviso.rating_promedio} 
+                cantidad={aviso.rating_cantidad} 
+              />
               <AvisoContact whatsapp={aviso.usu_tel} titulo={aviso.avi_titulo} />
             </div>
 

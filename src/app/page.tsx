@@ -248,7 +248,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="mt-auto py-12 px-6 lg:px-12 border-t border-black/5 dark:border-white/5 bg-slate-500/5">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex items-center gap-4 text-center md:text-left">
             <img 
               src="/logo-jeheka.png" 
