@@ -63,6 +63,11 @@ export default async function RootLayout({
                   Portal
                 </span>
               )}
+              {sessionToken && !session && (
+                <span className="text-[10px] bg-red-500/10 text-red-500 px-2 py-0.5 rounded border border-red-500/20">
+                  DEBUG: Cookie detectada pero inválida
+                </span>
+              )}
             </div>
 
 
