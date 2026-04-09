@@ -126,7 +126,7 @@ export default function LoginPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className={`w-full transition-all duration-500 ${mode === 'register' ? 'max-w-4xl' : 'max-w-md'}`}
       >
         <div className="text-center mb-8 px-4">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl glass-emerald border border-emerald-500/20 text-emerald-500 mb-6 font-bold uppercase tracking-widest text-[9px]">
