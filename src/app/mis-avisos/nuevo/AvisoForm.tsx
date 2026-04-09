@@ -267,7 +267,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
 
       {/* Sección 2: Categoría y Ubicación */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-[2rem] border border-zinc-200 dark:border-white/10">
+        <div className="glass p-8 rounded-[2rem] border border-white/10">
            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 opacity-40 flex items-center gap-2">
               <Briefcase className="w-4 h-4" /> Clasificación
            </h2>
@@ -297,7 +297,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 </select>
               </div>
 
-              <div className="pt-4 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Plan del Aviso</label>
                 <select 
                   required

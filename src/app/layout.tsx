@@ -10,6 +10,7 @@ import { decrypt } from "@/app/login/actions";
 
 export const dynamic = "force-dynamic";
 import { UserMenu } from "@/components/UserMenu";
+import { HeaderActions } from "@/components/HeaderActions";
 
 export const metadata: Metadata = {
   title: "Jeheka Clasificados | Tu Portal de Servicios",
@@ -32,6 +33,7 @@ export default async function RootLayout({
     try {
       session = await decrypt(sessionToken);
     } catch (e) {
+      console.error("Layout Session Error:", e);
       session = null;
     }
   }
@@ -63,38 +65,9 @@ export default async function RootLayout({
                   Portal
                 </span>
               )}
-              {sessionToken && !session && (
-                <span className="text-[10px] bg-red-500/10 text-red-500 px-2 py-0.5 rounded border border-red-500/20">
-                  DEBUG: Cookie detectada pero inválida
-                </span>
-              )}
             </div>
 
-
-            <div className="flex items-center gap-2 md:gap-4">
-              <ThemeToggle />
-              
-              {!session ? (
-                <>
-                  <Link href="/login" className="text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">
-                    Ingresar
-                  </Link>
-                  <Link href="/login" className="btn-premium px-4 py-1.5 text-[10px] uppercase tracking-widest inline-block">
-                    Crear Aviso
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/mis-datos" className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-500/5 transition-all group">
-                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-emerald-500 transition-all">Mis Datos</span>
-                  </Link>
-                  <UserMenu user={session} />
-                  <Link href="/mis-avisos/nuevo" className="btn-premium px-4 py-1.5 text-[10px] uppercase tracking-widest inline-block text-center">
-                    Nuevo Aviso
-                  </Link>
-                </>
-              )}
-            </div>
+            <HeaderActions initialSession={session} />
           </header>
           <Toaster position="top-right" richColors closeButton />
           
