@@ -28,7 +28,7 @@ export const searchService = {
         ts_rank(a.avi_search_vector, web_search_to_tsquery('spanish', $1)) as rank
       FROM avisos a
       JOIN v_clientes_info c ON a.cli_id = c.cli_id
-      WHERE a.avi_estado = 'activo'
+      WHERE a.avi_estado = 'AC'
     `;
 
     // Filtro de texto (optimizado con tsquery)

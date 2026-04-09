@@ -59,7 +59,7 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
                 )}
                 
                 <div className="absolute top-4 right-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-bold uppercase tracking-widest text-emerald-500">
-                  {aviso.avi_estado}
+                  {aviso.avi_estado === 'AC' ? 'Activo' : aviso.avi_estado}
                 </div>
               </div>
 

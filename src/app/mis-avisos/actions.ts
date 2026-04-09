@@ -48,8 +48,8 @@ export async function createAviso(formData: {
         usu_id, avi_titulo, avi_descripcion, avi_precio, 
         avi_rubro_id, avi_sub_rubro_id, avi_departamento_id, 
         avi_distrito_id, avi_ciudad_id, avi_whatsapp, avi_imagenes, 
-        avi_estado, avi_plan_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'activo', $12)
+        avi_estado, avi_plan_id, avi_moneda
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'AC', $12, 'PY')
       RETURNING avi_id`,
       [
         session.id, titulo, descripcion, precio, 
