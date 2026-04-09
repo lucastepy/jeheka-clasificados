@@ -112,8 +112,7 @@ export async function loginUser(formData: { email: string; password: string }) {
     }
 
     // Crear Sesión
-    const userDetails = await db.query("SELECT usu_foto_url FROM usuarios_portal WHERE usu_id = $1", [user.usu_id]);
-    const sessionToken = await encrypt({ id: user.usu_id, name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url });
+    const sessionToken = await encrypt({ id: user.usu_id, name: user.usu_nombre });
     const cookieStore = await cookies();
     cookieStore.set("jk_auth_session", sessionToken, { httpOnly: true, secure: false, maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
     
@@ -236,11 +235,10 @@ export async function updateUserData(formData: {
       }
     }
 
-    // Actualizar Cookie de Sesión con nuevos datos (nombre/foto)
+    // Actualizar Cookie de Sesión de forma ligera (SIN base64 para evitar el límite de 4KB)
     const sessionToken = await encrypt({ 
       id: session.id, 
-      name: name,
-      fotoUrl: fotoUrl 
+      name: name
     });
     const cookieStore = await cookies();
     cookieStore.set("jk_auth_session", sessionToken, { httpOnly: true, secure: false, maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
