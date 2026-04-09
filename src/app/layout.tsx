@@ -26,7 +26,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("jeheka_session_portal")?.value;
+  const sessionToken = cookieStore.get("session")?.value;
   let session = null;
   if (sessionToken) {
     try {
@@ -74,9 +74,9 @@ export default async function RootLayout({
                   <Link href="/login" className="text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">
                     Ingresar
                   </Link>
-                  <button className="btn-premium px-4 py-1.5 text-[10px] uppercase tracking-widest">
+                  <Link href="/login" className="btn-premium px-4 py-1.5 text-[10px] uppercase tracking-widest inline-block">
                     Crear Aviso
-                  </button>
+                  </Link>
                 </>
               ) : (
                 <>
@@ -84,9 +84,9 @@ export default async function RootLayout({
                     <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-emerald-500 transition-all">Mis Datos</span>
                   </Link>
                   <UserMenu user={session} />
-                  <button className="btn-premium px-4 py-1.5 text-[10px] uppercase tracking-widest">
+                  <Link href="/mis-avisos/nuevo" className="btn-premium px-4 py-1.5 text-[10px] uppercase tracking-widest inline-block text-center">
                     Nuevo Aviso
-                  </button>
+                  </Link>
                 </>
               )}
             </div>
