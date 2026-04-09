@@ -96,6 +96,7 @@ export default function LoginPage() {
           setMode("force_change");
         } else if (res?.success) {
           toast.success("Ingreso exitoso", { description: res.message });
+          window.location.href = "/";
         } else {
           toast.error("Error de ingreso", { description: res?.message || "Credenciales incorrectas" });
         }
@@ -103,6 +104,7 @@ export default function LoginPage() {
         const res = await finalizePasswordChange({ userId, newPassword });
         if (res.success) {
           toast.success("Contraseña actualizada", { description: res.message });
+          window.location.href = "/";
         } else {
           toast.error("Error al actualizar", { description: res?.message || "Algo salió mal" });
         }

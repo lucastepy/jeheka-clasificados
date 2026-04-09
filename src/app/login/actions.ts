@@ -117,10 +117,8 @@ export async function loginUser(formData: { email: string; password: string }) {
     const cookieStore = await cookies();
     cookieStore.set("session", sessionToken, { httpOnly: true, secure: false, maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
     
-    // Server-side redirect is more robust for session sync
-    redirect("/");
+    return { success: true, message: "¡Bienvenido!" };
   } catch (error) {
-    if ((error as any).digest?.startsWith("NEXT_REDIRECT")) throw error;
     console.error("Login Error:", error);
     return { success: false, message: "Error interno del servidor" };
   }
@@ -141,9 +139,8 @@ export async function finalizePasswordChange(formData: { userId: string; newPass
     const cookieStore = await cookies();
     cookieStore.set("session", sessionToken, { httpOnly: true, secure: false, maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
     
-    redirect("/");
+    return { success: true, message: "Contraseña actualizada" };
   } catch (error) {
-    if ((error as any).digest?.startsWith("NEXT_REDIRECT")) throw error;
     return { success: false, message: "Error de servidor" };
   }
 }
