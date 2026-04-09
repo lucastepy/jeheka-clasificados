@@ -42,7 +42,7 @@ export const searchService = {
 
     if (categoria) {
       params.push(categoria);
-      sql += ` AND a.avi_categoria_id = $${params.length}`;
+      sql += ` AND a.avi_rubro_id = $${params.length}`;
     }
 
     if (ciudad) {

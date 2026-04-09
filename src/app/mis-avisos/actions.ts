@@ -11,7 +11,7 @@ export async function getMisAvisos() {
   const res = await db.query(
     `SELECT a.*, r.nombre as rubro_nombre, s.nombre as sub_rubro_nombre
      FROM avisos a
-     LEFT JOIN rubros r ON a.avi_categoria_id = r.id
+     LEFT JOIN rubros r ON a.avi_rubro_id = r.id
      LEFT JOIN sub_rubros s ON a.avi_sub_rubro_id = s.id
      WHERE a.usu_id = $1
      ORDER BY a.avi_fec_alta DESC`,
@@ -24,7 +24,7 @@ export async function createAviso(formData: {
   titulo: string;
   descripcion: string;
   precio?: number;
-  categoriaId: number;
+  rubroId: number;
   subRubroId?: number;
   departamentoId?: number;
   distritoId?: number;
@@ -37,7 +37,7 @@ export async function createAviso(formData: {
 
   try {
     const { 
-      titulo, descripcion, precio, categoriaId, 
+      titulo, descripcion, precio, rubroId, 
       subRubroId, departamentoId, distritoId, 
       ciudadId, whatsapp, imagenes 
     } = formData;
@@ -45,14 +45,14 @@ export async function createAviso(formData: {
     const res = await db.query(
       `INSERT INTO avisos (
         usu_id, avi_titulo, avi_descripcion, avi_precio, 
-        avi_categoria_id, avi_sub_rubro_id, avi_departamento_id, 
+        avi_rubro_id, avi_sub_rubro_id, avi_departamento_id, 
         avi_distrito_id, avi_ciudad_id, avi_whatsapp, avi_imagenes, 
         avi_estado
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'activo')
       RETURNING avi_id`,
       [
         session.id, titulo, descripcion, precio, 
-        categoriaId, subRubroId, departamentoId, 
+        rubroId, subRubroId, departamentoId, 
         distritoId, ciudadId, whatsapp, JSON.stringify(imagenes || [])
       ]
     );

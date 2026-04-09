@@ -128,7 +128,7 @@ export function AvisoForm() {
         titulo,
         descripcion,
         precio: parseFloat(precio) || undefined,
-        categoriaId: parseInt(rubId),
+        rubroId: parseInt(rubId),
         subRubroId: parseInt(subRubId) || undefined,
         departamentoId: parseInt(depId) || undefined,
         distritoId: parseInt(disId) || undefined,
