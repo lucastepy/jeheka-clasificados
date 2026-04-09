@@ -94,19 +94,17 @@ export default function LoginPage() {
           toast.info("Cambio requerido", { description: res.message });
           setUserId(res.userId || "");
           setMode("force_change");
-        } else if (res.success) {
+        } else if (res?.success) {
           toast.success("Ingreso exitoso", { description: res.message });
-          window.location.href = "/";
         } else {
-          toast.error("Error de ingreso", { description: res.message });
+          toast.error("Error de ingreso", { description: res?.message || "Credenciales incorrectas" });
         }
       } else if (mode === "force_change") {
         const res = await finalizePasswordChange({ userId, newPassword });
         if (res.success) {
           toast.success("Contraseña actualizada", { description: res.message });
-          window.location.href = "/";
         } else {
-          toast.error("Error al actualizar", { description: res.message });
+          toast.error("Error al actualizar", { description: res?.message || "Algo salió mal" });
         }
       }
     } catch (err) {

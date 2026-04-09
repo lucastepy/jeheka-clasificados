@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { sendWelcomeEmail } from "@/services/email";
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
@@ -116,11 +117,13 @@ export async function loginUser(formData: { email: string; password: string }) {
     const sessionToken = await encrypt({ id: user.usu_id, name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url });
     const cookieStore = await cookies();
     cookieStore.set("jeheka_session_portal", sessionToken, { httpOnly: true, secure: false, maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
-    revalidatePath("/", "layout");
-
-    return { success: true, message: "¡Bienvenido de nuevo!", user: { name: user.usu_nombre, fotoUrl: userDetails.rows[0]?.usu_foto_url } };
+    
+    // Server-side redirect is more robust for session sync
+    redirect("/");
   } catch (error) {
-    return { success: false, message: "Error al ingresar." };
+    if ((error as any).digest?.startsWith("NEXT_REDIRECT")) throw error;
+    console.error("Login Error:", error);
+    return { success: false, message: "Error interno del servidor" };
   }
 }
 
@@ -138,11 +141,11 @@ export async function finalizePasswordChange(formData: { userId: string; newPass
     const sessionToken = await encrypt({ id: userId, name: res.rows[0].usu_nombre });
     const cookieStore = await cookies();
     cookieStore.set("jeheka_session_portal", sessionToken, { httpOnly: true, secure: false, maxAge: 60 * 60 * 24, path: "/", sameSite: "lax" });
-    revalidatePath("/", "layout");
-
-    return { success: true, message: "Cambio exitoso." };
+    
+    redirect("/");
   } catch (error) {
-    return { success: false, message: "Error al actualizar." };
+    if ((error as any).digest?.startsWith("NEXT_REDIRECT")) throw error;
+    return { success: false, message: "Error de servidor" };
   }
 }
 
