@@ -71,7 +71,7 @@ export default async function AvisoDetailPage({ params }: { params: Promise<{ id
               <div className="flex items-center gap-3 opacity-60">
                 <MapPin className="w-4 h-4 text-emerald-500" />
                 <span className="text-xs font-bold uppercase tracking-wide">
-                  {aviso.ciu_dsc ? `${aviso.ciu_dsc}, ${aviso.dep_dsc}` : "Ubicación no especificada"}
+                  {aviso.ciudad_nombre ? `${aviso.ciudad_nombre}, ${aviso.departamento_nombre}` : "Ubicación no especificada"}
                 </span>
               </div>
               <div className="flex items-center gap-3 opacity-60">

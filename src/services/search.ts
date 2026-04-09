@@ -31,9 +31,13 @@ export const searchService = {
       SELECT 
         a.avi_id, a.avi_titulo, a.avi_descripcion, a.avi_precio, a.avi_imagenes,
         u.usu_nombre as vendedor_nombre, 
-        u.usu_foto_url as vendedor_foto
+        u.usu_foto_url as vendedor_foto,
+        c.ciu_dsc as ciudad_nombre,
+        d.dep_dsc as departamento_nombre
       FROM avisos a
       LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
+      LEFT JOIN departamentos d ON a.avi_departamento_id = d.dep_cod
+      LEFT JOIN ciudades c ON a.avi_ciudad_id = c.ciu_cod AND a.avi_distrito_id = c.ciu_dis_cod
       WHERE (a.avi_estado = 'AC' OR a.avi_estado = 'activo')
     `;
 

@@ -142,10 +142,18 @@ export async function getUserDefaultData() {
 export async function getAvisoById(id: string) {
   try {
     const res = await db.query(
-      `SELECT a.*, u.usu_nombre, u.usu_whatsapp as usu_tel, u.usu_biografia, u.usu_foto_url, u.usu_email, u.usu_direccion, r.nombre as rubro_nombre
+      `SELECT a.*, 
+              u.usu_nombre, u.usu_whatsapp as usu_tel, u.usu_biografia, u.usu_foto_url, u.usu_email, u.usu_direccion, 
+              r.nombre as rubro_nombre,
+              d.dep_dsc as departamento_nombre,
+              dist.dis_dsc as distrito_nombre,
+              c.ciu_dsc as ciudad_nombre
        FROM avisos a
        LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
        LEFT JOIN rubros r ON a.avi_rubro_id = r.id
+       LEFT JOIN departamentos d ON a.avi_departamento_id = d.dep_cod
+       LEFT JOIN distritos dist ON a.avi_distrito_id = dist.dis_cod AND a.avi_departamento_id = dist.dis_dep_cod
+       LEFT JOIN ciudades c ON a.avi_ciudad_id = c.ciu_cod AND a.avi_distrito_id = c.ciu_dis_cod
        WHERE a.avi_id = $1`,
       [id]
     );

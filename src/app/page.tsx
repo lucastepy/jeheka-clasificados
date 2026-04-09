@@ -176,6 +176,13 @@ export default function HomePage() {
                       <h3 className="text-[11px] font-bold leading-tight mb-2 group-hover:text-emerald-500 transition-colors uppercase line-clamp-2 min-h-[2.4em]">
                         {aviso.avi_titulo}
                       </h3>
+
+                      <div className="flex items-center gap-1.5 opacity-40 mb-3">
+                        <MapPin className="w-2.5 h-2.5 text-emerald-500" />
+                        <span className="text-[8px] font-bold uppercase tracking-widest">
+                          {aviso.ciudad_nombre || "Ubicación no especificada"}
+                        </span>
+                      </div>
                       
                       <div className="mt-auto flex items-center justify-between gap-2">
                         <div className="flex flex-col">
