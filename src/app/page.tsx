@@ -11,11 +11,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  // Initial load of featured or recent ads
-  useEffect(() => {
-    handleSearch();
-  }, []);
-
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -157,40 +152,45 @@ export default function HomePage() {
                 return (
                   <motion.div
                     key={aviso.avi_id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="glass rounded-[2rem] border border-white/5 overflow-hidden flex flex-col group h-full shadow-lg hover:shadow-emerald-500/5 transition-all duration-500"
+                    className="glass rounded-2xl border border-white/5 overflow-hidden flex flex-col group h-full shadow-md hover:shadow-emerald-500/10 transition-all duration-300"
                   >
-                    <div className="h-44 bg-slate-500/10 relative overflow-hidden">
+                    <div className="h-32 bg-slate-500/10 relative overflow-hidden">
                       {imagenes[0] ? (
-                        <img src={imagenes[0]} alt={aviso.avi_titulo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <img src={imagenes[0]} alt={aviso.avi_titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center opacity-20">
-                          <ImageIcon className="w-10 h-10 mb-2" />
-                          <span className="text-[8px] font-bold uppercase tracking-widest">Sin Imagen</span>
+                        <div className="w-full h-full flex flex-col items-center justify-center opacity-10">
+                          <ImageIcon className="w-8 h-8" />
                         </div>
                       )}
-                      <div className="absolute top-4 right-4 px-2.5 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 text-[8px] font-bold uppercase tracking-widest text-emerald-400">
+                      <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/10 text-[7px] font-bold uppercase tracking-widest text-emerald-400">
                         {aviso.vendedor_nombre}
                       </div>
                     </div>
 
-                    <div className="p-6 flex-1 flex flex-col">
-                      <h3 className="text-md font-bold leading-tight mb-3 group-hover:text-emerald-500 transition-colors uppercase line-clamp-2">
+                    <div className="p-4 flex-1 flex flex-col">
+                      <h3 className="text-[11px] font-bold leading-tight mb-2 group-hover:text-emerald-500 transition-colors uppercase line-clamp-2 min-h-[2.4em]">
                         {aviso.avi_titulo}
                       </h3>
                       
-                      <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                      <div className="mt-auto flex items-center justify-between gap-2">
                         <div className="flex flex-col">
-                          <span className="text-xs font-black text-emerald-500">
+                          <span className="text-[10px] font-black text-emerald-500">
                              {aviso.avi_precio ? `Gs. ${new Intl.NumberFormat('es-PY').format(aviso.avi_precio)}` : "Consultar"}
                           </span>
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                           <button className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all">
-                              <Phone className="w-4 h-4" />
+                        <div className="flex items-center gap-1.5">
+                           <a 
+                             href={`/avisos/${aviso.avi_id}`}
+                             className="text-[8px] font-bold uppercase tracking-widest px-3 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all whitespace-nowrap"
+                           >
+                              Ver Detalles
+                           </a>
+                           <button className="p-1.5 rounded-lg bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/20 transition-all">
+                              <Phone className="w-3 h-3" />
                            </button>
                         </div>
                       </div>
