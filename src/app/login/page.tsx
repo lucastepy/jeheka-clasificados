@@ -140,7 +140,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="glass p-8 rounded-3xl shadow-2xl relative overflow-hidden backdrop-blur-3xl">
+        <div className="glass p-8 rounded-3xl shadow-2xl relative backdrop-blur-3xl overflow-visible">
           <form className="space-y-4" onSubmit={handleAuth}>
             <AnimatePresence mode="wait">
               {mode === "register" && (
@@ -149,7 +149,7 @@ export default function LoginPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="space-y-4 overflow-hidden"
+                  className="space-y-4"
                 >
                   {/* Fila 1: Nombre */}
                   <div className="space-y-2">
@@ -288,7 +288,7 @@ export default function LoginPage() {
                   key="force-pass"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="space-y-4 overflow-hidden"
+                  className="space-y-4"
                 >
                   <div className="p-2.5 rounded-lg bg-orange-500/5 border border-orange-500/20 text-[9px] text-orange-500 font-bold uppercase tracking-widest text-center mb-2">
                     Clave temporal detectada
