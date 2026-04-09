@@ -99,7 +99,7 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
                 <div className="flex items-center gap-4 text-[9px] font-bold uppercase tracking-widest opacity-30">
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
-                    {new Date(aviso.avi_fec_alta).toLocaleDateString()}
+                    {new Intl.DateTimeFormat('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(aviso.avi_fec_alta))}
                   </div>
                 </div>
                 

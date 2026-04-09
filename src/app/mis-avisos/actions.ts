@@ -43,16 +43,20 @@ export async function createAviso(formData: {
       ciudadId, whatsapp, imagenes 
     } = formData;
 
+    // Obtener el cli_id del usuario para vincularlo al aviso
+    const userRes = await db.query("SELECT cli_id FROM usuarios_portal WHERE usu_id = $1", [session.id]);
+    const cliId = userRes.rows[0]?.cli_id;
+
     const res = await db.query(
       `INSERT INTO avisos (
-        usu_id, avi_titulo, avi_descripcion, avi_precio, 
+        usu_id, cli_id, avi_titulo, avi_descripcion, avi_precio, 
         avi_rubro_id, avi_sub_rubro_id, avi_departamento_id, 
         avi_distrito_id, avi_ciudad_id, avi_whatsapp, avi_imagenes, 
         avi_estado, avi_plan_id, avi_moneda
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'AC', $12, 'PY')
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'AC', $13, 'PY')
       RETURNING avi_id`,
       [
-        session.id, titulo, descripcion, precio, 
+        session.id, cliId, titulo, descripcion, precio, 
         rubroId, subRubroId, departamentoId, 
         distritoId, ciudadId, whatsapp, JSON.stringify(imagenes || []),
         formData.planId
@@ -102,7 +106,7 @@ export async function getUserDefaultData() {
 export async function getAvisoById(id: string) {
   try {
     const res = await db.query(
-      `SELECT a.*, u.usu_nombre, u.usu_whatsapp as usu_tel, r.nombre as rubro_nombre
+      `SELECT a.*, u.usu_nombre, u.usu_whatsapp as usu_tel, u.usu_biografia, u.usu_foto_url, u.usu_email, u.usu_direccion, r.nombre as rubro_nombre
        FROM avisos a
        LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
        LEFT JOIN rubros r ON a.avi_rubro_id = r.id

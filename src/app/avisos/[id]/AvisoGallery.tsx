@@ -27,11 +27,11 @@ export default function AvisoGallery({ imagenes, titulo }: { imagenes: string[],
             key={index}
             src={imagenes[index]}
             alt={titulo}
-            initial={{ opacity: 0, scale: 1.1 }}
+            initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.4 }}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-black/40"
           />
         </AnimatePresence>
 
