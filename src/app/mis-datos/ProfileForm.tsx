@@ -178,7 +178,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Sección: Información Básica */}
-      <div className="glass p-6 md:p-8 rounded-3xl border border-white/10 relative overflow-hidden">
+      <div className="glass p-6 md:p-8 rounded-3xl border border-white/5">
         <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
           <User className="w-32 h-32" />
         </div>
