@@ -100,16 +100,18 @@ export async function getUserDefaultData() {
 }
 
 export async function getAvisoById(id: string) {
-  const res = await db.query(
-    `SELECT a.*, u.usu_nombre, u.usu_whatsapp as usu_tel, d.dep_dsc, ds.dis_dsc, ci.ciu_dsc, r.nombre as rubro_nombre
-     FROM avisos a
-     LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
-     LEFT JOIN departamentos d ON a.avi_dep_cod = d.dep_cod
-     LEFT JOIN distritos ds ON a.avi_dis_cod = ds.dis_cod
-     LEFT JOIN ciudades ci ON a.avi_ciu_cod = ci.ciu_cod
-     LEFT JOIN rubros r ON a.avi_rubro_id = r.id
-     WHERE a.avi_id = $1`,
-    [id]
-  );
-  return res.rows[0];
+  try {
+    const res = await db.query(
+      `SELECT a.*, u.usu_nombre, u.usu_whatsapp as usu_tel, r.nombre as rubro_nombre
+       FROM avisos a
+       LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
+       LEFT JOIN rubros r ON a.avi_rubro_id = r.id
+       WHERE a.avi_id = $1`,
+      [id]
+    );
+    return res.rows[0];
+  } catch (error) {
+    console.error("Error getAvisoById:", error);
+    return null;
+  }
 }

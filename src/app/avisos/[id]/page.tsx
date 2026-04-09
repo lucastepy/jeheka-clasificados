@@ -61,7 +61,9 @@ export default async function AvisoDetailPage({ params }: { params: { id: string
           <div className="flex flex-col gap-4 mb-10 p-6 rounded-3xl bg-slate-500/5 border border-white/5">
             <div className="flex items-center gap-3 opacity-60">
               <MapPin className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-bold uppercase tracking-wide">{aviso.ciu_dsc}, {aviso.dep_dsc}</span>
+              <span className="text-xs font-bold uppercase tracking-wide">
+                {aviso.ciu_dsc ? `${aviso.ciu_dsc}, ${aviso.dep_dsc}` : "Ubicación no especificada"}
+              </span>
             </div>
             <div className="flex items-center gap-3 opacity-60">
               <User className="w-4 h-4 text-emerald-500" />
@@ -69,7 +71,7 @@ export default async function AvisoDetailPage({ params }: { params: { id: string
             </div>
             <div className="flex items-center gap-3 opacity-60">
               <Calendar className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-bold uppercase tracking-wide">Publicado el {new Date(aviso.avi_fec_alta).toLocaleDateString('es-PY')}</span>
+              <span className="text-xs font-bold uppercase tracking-wide">Publicada: {new Date(aviso.avi_fec_alta).toLocaleDateString('es-PY')}</span>
             </div>
           </div>
 
