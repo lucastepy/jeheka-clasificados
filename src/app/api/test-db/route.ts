@@ -24,6 +24,12 @@ export async function GET() {
       WHERE table_name = 'usuarios_portal'
     `).catch(() => ({ rows: [] }));
 
+    const sampleAvisos = await db.query(`
+      SELECT avi_id, avi_titulo, avi_estado, usu_id 
+      FROM avisos 
+      LIMIT 10
+    `).catch(() => ({ rows: [] }));
+
     return NextResponse.json({
       tables: tables.rows.map(r => r.table_name),
       counts: {
@@ -33,6 +39,9 @@ export async function GET() {
       columns: {
         avisos: avisosCols.rows.map(r => r.column_name),
         usuarios_portal: usuariosCols.rows.map(r => r.column_name)
+      },
+      samples: {
+        avisos: sampleAvisos.rows
       }
     });
   } catch (error: any) {

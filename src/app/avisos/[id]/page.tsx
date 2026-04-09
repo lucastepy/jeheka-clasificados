@@ -3,13 +3,17 @@ import { getAvisoById } from "../../mis-avisos/actions";
 import { Phone, MapPin, Tag, Calendar, User, ChevronLeft, ImageIcon } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function AvisoDetailPage({ params }: { params: { id: string } }) {
+  console.log("Buscando detalle de aviso ID:", params.id);
   const aviso = await getAvisoById(params.id);
 
   if (!aviso) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen opacity-40">
         <p className="text-xl font-bold uppercase tracking-widest">Aviso no encontrado</p>
+        <p className="text-[10px] opacity-50 mt-2">ID: {params.id}</p>
         <Link href="/" className="mt-4 text-emerald-500 underline text-sm font-bold uppercase tracking-widest">Volver al inicio</Link>
       </div>
     );
