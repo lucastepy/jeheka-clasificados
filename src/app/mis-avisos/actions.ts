@@ -43,9 +43,9 @@ export async function createAviso(formData: {
       ciudadId, whatsapp, imagenes 
     } = formData;
 
-    // Obtener el cli_id del usuario para vincularlo al aviso
-    const userRes = await db.query("SELECT cli_id FROM usuarios_portal WHERE usu_id = $1", [session.id]);
-    const cliId = userRes.rows[0]?.cli_id;
+    // Obtener el cli_id del usuario para vincularlo al aviso (usando el nombre correcto de la tabla usuarios_portal)
+    const userRes = await db.query("SELECT usu_cliente_id FROM usuarios_portal WHERE usu_id = $1", [session.id]);
+    const cliId = userRes.rows[0]?.usu_cliente_id;
 
     const res = await db.query(
       `INSERT INTO avisos (
