@@ -15,22 +15,7 @@ export function HeaderActions({ initialSession }: HeaderActionsProps) {
 
   useEffect(() => {
     setMounted(true);
-    // Verificar si la sesión cambió o si es null pero hay cookie
-    const checkSession = async () => {
-      try {
-        const res = await fetch("/api/session");
-        const data = await res.json();
-        setSession(data.session);
-      } catch (e) {
-        console.error("Session check failed");
-      }
-    };
-    
-    // Solo verificar si la sesión inicial es null para evitar parpadeo si ya está logueado
-    if (!initialSession) {
-      checkSession();
-    }
-  }, [initialSession]);
+  }, []);
 
   if (!mounted) {
     return (
@@ -42,6 +27,11 @@ export function HeaderActions({ initialSession }: HeaderActionsProps) {
 
   return (
     <div className="flex items-center gap-2 md:gap-4 transition-opacity duration-300">
+      {session && (
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-tighter mr-2">
+          Portal
+        </span>
+      )}
       <ThemeToggle />
       
       {!session ? (

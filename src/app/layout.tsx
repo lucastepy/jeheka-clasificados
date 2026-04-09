@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { decrypt } from "@/app/login/actions";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { UserMenu } from "@/components/UserMenu";
 import { HeaderActions } from "@/components/HeaderActions";
 
@@ -60,11 +61,6 @@ export default async function RootLayout({
                   <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest leading-tight">Clasificado de<br/>Servicios en Paraguay</span>
                 </div>
               </Link>
-              {session && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-tighter">
-                  Portal
-                </span>
-              )}
             </div>
 
             <HeaderActions initialSession={session} />
