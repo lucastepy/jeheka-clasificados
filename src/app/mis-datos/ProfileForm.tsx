@@ -178,7 +178,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Sección: Información Básica */}
-      <div className="glass p-6 md:p-8 rounded-3xl border border-white/5">
+      <div className="glass p-6 md:p-10 rounded-3xl border border-white/5 overflow-visible">
         <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
           <User className="w-32 h-32" />
         </div>
@@ -286,7 +286,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       </div>
 
       {/* Sección: Ubicación ... */}
-      <div className="glass p-6 md:p-8 rounded-3xl border border-white/5">
+      <div className="glass p-6 md:p-10 rounded-3xl border border-white/5 overflow-visible">
         <h2 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2 opacity-50">
           <MapPin className="w-4 h-4" /> Ubicación
         </h2>
