@@ -46,8 +46,8 @@ export async function createAviso(formData: {
     const res = await db.query(
       `INSERT INTO avisos (
         usu_id, avi_titulo, avi_descripcion, avi_precio, 
-        avi_rubro_id, avi_sub_rubro_id, avi_dep_cod, 
-        avi_dis_cod, avi_ciu_cod, avi_whatsapp, avi_imagenes, 
+        avi_rubro_id, avi_sub_rubro_id, avi_departamento_id, 
+        avi_distrito_id, avi_ciudad_id, avi_whatsapp, avi_imagenes, 
         avi_estado, avi_plan_id, avi_moneda
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'AC', $12, 'PY')
       RETURNING avi_id`,

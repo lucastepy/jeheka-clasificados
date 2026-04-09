@@ -49,7 +49,7 @@ export const searchService = {
     }
     if (ciudad) {
       params.push(ciudad);
-      sql += ` AND a.avi_ciu_cod = $${params.length}`;
+      sql += ` AND a.avi_ciudad_id = $${params.length}`;
     }
 
     if (min_precio) {

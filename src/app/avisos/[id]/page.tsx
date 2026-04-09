@@ -1,7 +1,9 @@
 import React from "react";
-import { getAvisoById } from "../../mis-avisos/actions";
-import { Phone, MapPin, Tag, Calendar, User, ChevronLeft, ImageIcon } from "lucide-react";
 import Link from "next/link";
+import { ChevronLeft, MapPin, User, Calendar } from "lucide-react";
+import { getAvisoById } from "../../mis-avisos/actions";
+import AvisoGallery from "./AvisoGallery";
+import AvisoContact from "./AvisoContact";
 
 export const dynamic = "force-dynamic";
 
@@ -33,18 +35,7 @@ export default async function AvisoDetailPage({ params }: { params: Promise<{ id
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Galería / Imagen */}
-        <div className="space-y-4">
-          <div className="aspect-square rounded-[2.5rem] overflow-hidden glass border border-white/5 relative bg-slate-500/10">
-            {imagenes[0] ? (
-              <img src={imagenes[0]} alt={aviso.avi_titulo} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center opacity-10">
-                <ImageIcon className="w-20 h-20 mb-4" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Sin Imagen</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <AvisoGallery imagenes={imagenes} titulo={aviso.avi_titulo} />
 
         {/* Información */}
         <div className="flex flex-col">
@@ -90,14 +81,7 @@ export default async function AvisoDetailPage({ params }: { params: Promise<{ id
           </div>
 
           <div className="mt-auto flex flex-col gap-3">
-            <a 
-              href={`https://wa.me/${aviso.usu_tel?.replace(/\D/g, '')}`}
-              target="_blank"
-              className="w-full btn-premium py-4 flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest"
-            >
-              <Phone className="w-4 h-4 fill-current" />
-              Contactar por WhatsApp
-            </a>
+            <AvisoContact whatsapp={aviso.usu_tel} titulo={aviso.avi_titulo} />
           </div>
         </div>
       </div>
