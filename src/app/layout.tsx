@@ -53,11 +53,6 @@ export default async function RootLayout({
               )}
             </div>
 
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="#" className="text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 hover:text-emerald-500 transition-all">
-                Cómo funciona
-              </a>
-            </nav>
 
             <div className="flex items-center gap-2 md:gap-4">
               <ThemeToggle />

@@ -175,14 +175,51 @@ export async function updateUserData(formData: {
       rubroId, subRubroId, esEmpresa, fotoUrl 
     } = formData;
 
+    // Lógica de Sincronización con la Tabla de Clientes (public.clientes)
+    const userRow = await db.query("SELECT usu_email, usu_cliente_id FROM usuarios_portal WHERE usu_id = $1", [session.id]);
+    const { usu_email, usu_cliente_id } = userRow.rows[0];
+
+    let clienteId = usu_cliente_id;
+
+    if (!clienteId) {
+      // Intentar vincular por email si ya existe en clientes pero no está vinculado
+      const existingCliente = await db.query("SELECT id FROM clientes WHERE email_facturacion = $1 LIMIT 1", [usu_email]);
+      if (existingCliente.rows.length > 0) {
+        clienteId = existingCliente.rows[0].id;
+      }
+    }
+
+    if (clienteId) {
+      // Actualizar cliente existente
+      await db.query(
+        `UPDATE clientes SET 
+          nombre_empresa = $1, razon_social = $1, rubro_id = $2, sub_rubro_id = $3, 
+          telefono_facturacion = $4, direccion_fiscal = $5, fecha_modificacion = CURRENT_TIMESTAMP
+         WHERE id = $6`,
+        [name, rubroId, subRubroId, whatsapp, direccion, clienteId]
+      );
+    } else {
+      // Crear nuevo cliente
+      const newCliente = await db.query(
+        `INSERT INTO clientes (
+          nombre_empresa, razon_social, rubro_id, sub_rubro_id, 
+          email_facturacion, telefono_facturacion, direccion_fiscal, estado
+        ) VALUES ($1, $1, $2, $3, $4, $5, $6, 'pendiente_pago')
+        RETURNING id`,
+        [name, rubroId, subRubroId, usu_email, whatsapp, direccion]
+      );
+      clienteId = newCliente.rows[0].id;
+    }
+
+    // Asegurar que usuarios_portal tenga la referencia al cliente_id
     await db.query(
       `UPDATE usuarios_portal SET 
         usu_nombre = $1, usu_whatsapp = $2, usu_direccion = $3, 
         usu_departamento_id = $4, usu_distrito_id = $5, usu_ciudad_id = $6, 
         usu_rubro_id = $7, usu_sub_rubro_id = $8, usu_es_empresa = $9,
-        usu_foto_url = $10
-       WHERE usu_id = $11`,
-      [name, whatsapp, direccion, departamentoId, distritoId, ciudadId, rubroId, subRubroId, esEmpresa, fotoUrl, session.id]
+        usu_foto_url = $10, usu_cliente_id = $11
+       WHERE usu_id = $12`,
+      [name, whatsapp, direccion, departamentoId, distritoId, ciudadId, rubroId, subRubroId, esEmpresa, fotoUrl, clienteId, session.id]
     );
 
     // Si cambia a cuenta personal y no tiene CV, crearlo
