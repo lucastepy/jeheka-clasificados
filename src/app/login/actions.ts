@@ -131,7 +131,7 @@ export async function finalizePasswordChange(formData: { userId: string; newPass
 
     const sessionToken = await encrypt({ id: userId, name: res.rows[0].usu_nombre });
     const cookieStore = await cookies();
-    cookieStore.set("session", sessionToken, { httpOnly: true, secure: true, maxAge: 60 * 60 * 2, path: "/" });
+    cookieStore.set("session", sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 2, path: "/" });
 
     return { success: true, message: "Cambio exitoso." };
   } catch (error) {
