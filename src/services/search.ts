@@ -30,11 +30,10 @@ export const searchService = {
     let sql = `
       SELECT 
         a.avi_id, a.avi_titulo, a.avi_descripcion, a.avi_precio, a.avi_imagenes,
-        COALESCE(u.usu_nombre, c.cli_nombre_comercial, 'Anunciante') as vendedor_nombre, 
-        COALESCE(u.usu_foto_url, c.cli_logo) as vendedor_foto
+        u.usu_nombre as vendedor_nombre, 
+        u.usu_foto_url as vendedor_foto
       FROM avisos a
       LEFT JOIN usuarios_portal u ON a.usu_id = u.usu_id
-      LEFT JOIN v_clientes_info c ON a.cli_id = c.cli_id
       WHERE (a.avi_estado = 'AC' OR a.avi_estado = 'activo')
     `;
 
