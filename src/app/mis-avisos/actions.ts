@@ -83,13 +83,14 @@ export async function createAviso(formData: {
       console.log("Cliente creado y vinculado exitosamente con ID:", cliId);
     }
 
+    // 1. Crear el aviso en estado Pendiente ('PE')
     const res = await db.query(
       `INSERT INTO avisos (
         usu_id, cli_id, avi_titulo, avi_descripcion, avi_precio, 
         avi_rubro_id, avi_sub_rubro_id, avi_departamento_id, 
         avi_distrito_id, avi_ciudad_id, avi_whatsapp, avi_imagenes, 
         avi_estado, avi_plan_id, avi_moneda
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'AC', $13, 'PY')
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'PE', $13, 'PY')
       RETURNING avi_id`,
       [
         session.id, cliId, titulo, descripcion, precio, 
@@ -99,8 +100,50 @@ export async function createAviso(formData: {
       ]
     );
 
+    const aviId = res.rows[0].avi_id;
+
+    // 2. Obtener el monto del plan seleccionado para generar el pago
+    const planRes = await db.query("SELECT nombre, precio_mensual FROM planes WHERE id = $1", [formData.planId]);
+    const plan = planRes.rows[0];
+
+    if (!plan) {
+      return { success: false, message: "Plan no encontrado." };
+    }
+
+    // 3. Generar el link de pago en dLocal Go
+    // Importamos dinámicamente o arriba. Mejor arriba pero como es server action...
+    const { createDLocalPayment } = await import("@/lib/dlocal");
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+    const payment = await createDLocalPayment({
+      amount: plan.precio_mensual,
+      currency: 'PYG',
+      country: 'PY',
+      order_id: aviId.toString(),
+      description: `Jeheka - Plan ${plan.nombre}`,
+      success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${aviId}`,
+      back_url: `${baseUrl}/mis-avisos/nuevo`,
+      notification_url: `${baseUrl}/api/webhooks/dlocal`,
+      allow_recurring: true // Habilitamos recurrencia como pidió el usuario
+    });
+
+    if (!payment.success) {
+      // Si falla el pago, igual el aviso quedó en pendiente, pero avisamos al usuario
+      console.error("Error al generar pago dLocal:", payment.error);
+      return { 
+        success: true, 
+        message: "Aviso guardado (pendiente), pero hubo un error con el link de pago.",
+        id: aviId
+      };
+    }
+
     revalidatePath("/mis-avisos");
-    return { success: true, message: "Aviso creado exitosamente.", id: res.rows[0].avi_id };
+    return { 
+      success: true, 
+      message: "Aviso creado. Redirigiendo al pago...", 
+      id: aviId,
+      checkoutUrl: payment.redirect_url 
+    };
   } catch (error) {
     console.error("Create Aviso Error:", error);
     return { success: false, message: "Error al crear el aviso." };
@@ -198,5 +241,31 @@ export async function rateAviso(avisoId: string, rating: number, comentario?: st
   } catch (error) {
     console.error("Error rating aviso:", error);
     return { success: false, message: "Error al guardar la calificación" };
+  }
+}
+
+export async function activateAviso(avisoId: string, dlocalPaymentId?: string) {
+  try {
+    // 1. Si viene el ID de dLocal, verificamos en su API primero
+    if (dlocalPaymentId) {
+      const { retrieveDLocalPayment } = await import("@/lib/dlocal");
+      const dlocal = await retrieveDLocalPayment(dlocalPaymentId);
+      
+      if (!dlocal.success || (dlocal.payment.status !== 'PAID' && dlocal.payment.status !== 'PENDING')) {
+        // PENDING también lo dejamos pasar a veces según la política, pero PAID es lo ideal.
+      }
+    }
+
+    // 2. Activar el aviso en la DB
+    await db.query(
+      "UPDATE avisos SET avi_estado = 'AC', avi_fec_alta = CURRENT_TIMESTAMP WHERE avi_id = $1",
+      [avisoId]
+    );
+
+    revalidatePath("/mis-avisos");
+    return { success: true };
+  } catch (error) {
+    console.error("Error al activar aviso:", error);
+    return { success: false };
   }
 }

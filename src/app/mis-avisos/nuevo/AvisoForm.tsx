@@ -169,6 +169,26 @@ export default function AvisoForm({ userData }: { userData?: any }) {
     setImagenes(prev => prev.filter((_, i) => i !== index));
   };
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [createdAvisoId, setCreatedAvisoId] = useState<string | null>(null);
+
+  // Polling para chequear si el aviso ya se activó
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (showPaymentModal && createdAvisoId) {
+      interval = setInterval(async () => {
+        const res = await fetch(`/api/avisos/status?id=${createdAvisoId}`);
+        const data = await res.json();
+        if (data.status === 'AC') {
+           toast.success("¡Pago confirmado! Tu aviso ya está activo.");
+           setShowPaymentModal(false);
+           router.push("/mis-avisos");
+        }
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [showPaymentModal, createdAvisoId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (imagenes.length === 0) {
@@ -199,8 +219,26 @@ export default function AvisoForm({ userData }: { userData?: any }) {
       });
 
       if (res.success) {
-        toast.success(res.message);
-        router.push("/mis-avisos");
+        setCreatedAvisoId(res.id);
+        
+        // Si hay una URL de pago (Checkout dLocal), abrimos en POPUP
+        if (res.checkoutUrl) {
+           const width = 600;
+           const height = 800;
+           const left = (window.innerWidth / 2) - (width / 2);
+           const top = (window.innerHeight / 2) - (height / 2);
+           
+           window.open(
+             res.checkoutUrl as string, 
+             "Pagoeheka", 
+             `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`
+           );
+           
+           setShowPaymentModal(true);
+        } else {
+           toast.success(res.message);
+           router.push("/mis-avisos");
+        }
       } else {
         toast.error(res.message);
       }
@@ -212,6 +250,31 @@ export default function AvisoForm({ userData }: { userData?: any }) {
   };
 
   return (
+    <>
+    {showPaymentModal && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
+        <div className="glass p-12 rounded-[3rem] text-center max-w-lg border border-emerald-500/30 shadow-2xl shadow-emerald-500/10">
+           <div className="flex justify-center mb-6">
+             <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+             </div>
+           </div>
+           <h3 className="text-2xl font-black mb-2">Completando el Pago</h3>
+           <p className="opacity-60 mb-8">
+             Hemos abierto una ventana emergente para que confirmes tu suscripción. 
+             Una vez termines el pago, este aviso se activará automáticamente.
+           </p>
+           
+           <button 
+             onClick={() => setShowPaymentModal(false)}
+             className="px-8 py-4 rounded-xl border border-white/10 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+           >
+             Cerrar Ventana
+           </button>
+        </div>
+      </div>
+    )}
+
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Sección 1: Información del Servicio */}
         <div className="glass p-8 rounded-[2rem] border border-white/10">
