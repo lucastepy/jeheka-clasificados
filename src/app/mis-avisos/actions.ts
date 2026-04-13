@@ -123,8 +123,7 @@ export async function createAviso(formData: {
       description: `Jeheka - Plan ${plan.nombre}`,
       success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${aviId}`,
       back_url: `${baseUrl}/mis-avisos/nuevo`,
-      notification_url: `${baseUrl}/api/webhooks/dlocal`,
-      allow_recurring: true // Habilitamos recurrencia como pidió el usuario
+      notification_url: `${baseUrl}/api/webhooks/dlocal`
     });
 
     if (!payment.success) {
