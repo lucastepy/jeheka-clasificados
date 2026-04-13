@@ -5,6 +5,7 @@ import { Clock, Eye, Trash2, Edit3, ImageIcon, Briefcase, MapPin } from "lucide-
 import { motion, AnimatePresence } from "framer-motion";
 import { deleteAviso } from "./actions";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface Aviso {
   avi_id: string;
@@ -104,9 +105,12 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <button className="p-2.5 rounded-xl hover:bg-emerald-500/10 text-emerald-500 transition-all border border-transparent hover:border-emerald-500/20">
+                  <Link 
+                    href={`/mis-avisos/${aviso.avi_id}/editar`}
+                    className="p-2.5 rounded-xl hover:bg-emerald-500/10 text-emerald-500 transition-all border border-transparent hover:border-emerald-500/20"
+                  >
                     <Edit3 className="w-4 h-4" />
-                  </button>
+                  </Link>
                   <button 
                     onClick={() => handleDelete(aviso.avi_id)}
                     className="p-2.5 rounded-xl hover:bg-red-500/10 text-red-500 transition-all border border-transparent hover:border-red-500/20"

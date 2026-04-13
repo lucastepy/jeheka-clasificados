@@ -18,9 +18,15 @@ import {
   Plus
 } from "lucide-react";
 import { toast } from "sonner";
-import { createAviso, getPlanesPortal } from "../actions";
+import { createAviso, updateAviso, getPlanesPortal } from "../actions";
 
-export default function AvisoForm({ userData }: { userData?: any }) {
+export default function AvisoForm({ 
+  userData, 
+  initialData 
+}: { 
+  userData?: any; 
+  initialData?: any;
+}) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -36,19 +42,27 @@ export default function AvisoForm({ userData }: { userData?: any }) {
     setDisplayPrecio(new Intl.NumberFormat("es-PY").format(parseInt(numeric)));
   };
 
-  // Form State - Pre-filled with userData
-  const [titulo, setTitulo] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [precio, setPrecio] = useState("");
-  const [whatsapp, setWhatsapp] = useState(userData?.usu_whatsapp || "");
-  const [imagenes, setImagenes] = useState<string[]>([]);
-  const [planId, setPlanId] = useState("");
+  const isEditing = !!initialData;
 
-  const [depId, setDepId] = useState(userData?.usu_departamento_id?.toString() || "");
-  const [disId, setDisId] = useState(userData?.usu_distrito_id?.toString() || "");
-  const [ciuId, setCiuId] = useState(userData?.usu_ciudad_id?.toString() || "");
-  const [rubId, setRubId] = useState(userData?.usu_rubro_id?.toString() || "");
-  const [subRubId, setSubRubId] = useState(userData?.usu_sub_rubro_id?.toString() || "");
+  useEffect(() => {
+    if (initialData?.avi_precio) {
+      handlePrecioChange(initialData.avi_precio.toString());
+    }
+  }, [initialData]);
+
+  // Form State - Pre-filled with userData or initialData
+  const [titulo, setTitulo] = useState(initialData?.avi_titulo || "");
+  const [descripcion, setDescripcion] = useState(initialData?.avi_descripcion || "");
+  const [precio, setPrecio] = useState(initialData?.avi_precio?.toString() || "");
+  const [whatsapp, setWhatsapp] = useState(initialData?.avi_whatsapp || userData?.usu_whatsapp || "");
+  const [imagenes, setImagenes] = useState<string[]>(initialData?.avi_imagenes || []);
+  const [planId, setPlanId] = useState(initialData?.avi_plan_id?.toString() || "");
+
+  const [depId, setDepId] = useState(initialData?.avi_departamento_id?.toString() || userData?.usu_departamento_id?.toString() || "");
+  const [disId, setDisId] = useState(initialData?.avi_distrito_id?.toString() || userData?.usu_distrito_id?.toString() || "");
+  const [ciuId, setCiuId] = useState(initialData?.avi_ciudad_id?.toString() || userData?.usu_ciudad_id?.toString() || "");
+  const [rubId, setRubId] = useState(initialData?.avi_rubro_id?.toString() || userData?.usu_rubro_id?.toString() || "");
+  const [subRubId, setSubRubId] = useState(initialData?.avi_sub_rubro_id?.toString() || userData?.usu_sub_rubro_id?.toString() || "");
 
   // Track if it's the first render to avoid clearing values
   const isInitialLoad = useRef(true);
@@ -184,7 +198,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
     setLoading(true);
 
     try {
-      const res = await createAviso({
+      const payload = {
         titulo,
         descripcion,
         precio: precio ? parseFloat(precio) : undefined,
@@ -196,20 +210,31 @@ export default function AvisoForm({ userData }: { userData?: any }) {
         whatsapp,
         imagenes,
         planId: parseInt(planId)
-      });
+      };
 
-      if (res.success) {
-        // Redirección directa según documentación de dLocal API
-        if (res.checkoutUrl) {
-           toast.success("Redirigiendo a la plataforma de pago...");
-           window.location.href = res.checkoutUrl as string;
-           return;
+      if (isEditing) {
+        const res = await updateAviso(initialData.avi_id, payload);
+        if (res.success) {
+          toast.success(res.message);
+          router.push("/mis-avisos");
+        } else {
+          toast.error(res.message);
         }
-
-        toast.success(res.message);
-        router.push("/mis-avisos");
       } else {
-        toast.error(res.message);
+        const res = await createAviso(payload);
+        if (res.success) {
+          // Redirección directa según documentación de dLocal API
+          if (res.checkoutUrl) {
+             toast.success("Redirigiendo a la plataforma de pago...");
+             window.location.href = res.checkoutUrl as string;
+             return;
+          }
+
+          toast.success(res.message);
+          router.push("/mis-avisos");
+        } else {
+          toast.error(res.message);
+        }
       }
     } catch (error) {
       toast.error("Error al publicar");
@@ -324,22 +349,24 @@ export default function AvisoForm({ userData }: { userData?: any }) {
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Plan del Aviso</label>
-                <select 
-                  required
-                  value={planId}
-                  onChange={(e) => setPlanId(e.target.value)}
-                  className="w-full bg-emerald-500/5 border border-emerald-500/20 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer text-emerald-500 font-bold"
-                >
-                  <option value="">Seleccionar plan de pago</option>
-                  {planes.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre} - Gs. {new Intl.NumberFormat('es-PY').format(p.precio_mensual)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {!isEditing && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Plan del Aviso</label>
+                  <select 
+                    required
+                    value={planId}
+                    onChange={(e) => setPlanId(e.target.value)}
+                    className="w-full bg-emerald-500/5 border border-emerald-500/20 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer text-emerald-500 font-bold"
+                  >
+                    <option value="">Seleccionar plan de pago</option>
+                    {planes.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.nombre} - Gs. {new Intl.NumberFormat('es-PY').format(p.precio_mensual)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
            </div>
         </div>
 
@@ -444,7 +471,7 @@ export default function AvisoForm({ userData }: { userData?: any }) {
           ) : (
              <Save className="w-5 h-5" />
           )}
-          {loading ? "Publicando Aviso..." : "Publicar Ahora"}
+          {loading ? (isEditing ? "Guardando..." : "Publicando Aviso...") : (isEditing ? "Guardar Cambios" : "Publicar Ahora")}
         </button>
       </div>
     </form>

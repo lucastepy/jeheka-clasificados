@@ -56,19 +56,28 @@ export async function createAviso(formData: {
       console.log("Detectado usuario sin ID de cliente. Creando registro en tabla clientes...");
       const userData = userRes.rows[0];
       
+      // 1. Buscar el ID de vigencia indefinida (0 meses)
+      const vigenciaRes = await db.query(
+        "SELECT vig_planes_id FROM public.vigencia_planes WHERE vig_planes_tiempo = 0 LIMIT 1"
+      );
+      const vigenciaId = vigenciaRes.rows[0]?.vig_planes_id || 1; // Fallback a 1 si no encuentra nada
+
+      // 2. Crear el cliente con el plan seleccionado y la vigencia correcta
       const clientInsertRes = await db.query(
-        `INSERT INTO clientes (
+        `INSERT INTO public.clientes (
           nombre_empresa, razon_social, email_facturacion, 
           telefono_facturacion, rubro_id, sub_rubro_id, 
-          fecha_alta, plan_id
-        ) VALUES ($1, $1, $2, $3, $4, $5, CURRENT_TIMESTAMP, 1)
+          fecha_alta, plan_id, vigencia_plan_id
+        ) VALUES ($1, $1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6, $7)
         RETURNING id`,
         [
           userData.usu_nombre, 
           userData.usu_email, 
           userData.usu_whatsapp,
           userData.usu_rubro_id,
-          userData.usu_sub_rubro_id
+          userData.usu_sub_rubro_id,
+          formData.planId,
+          vigenciaId
         ]
       );
       
@@ -146,6 +155,46 @@ export async function createAviso(formData: {
   } catch (error) {
     console.error("Create Aviso Error:", error);
     return { success: false, message: "Error al crear el aviso." };
+  }
+}
+
+export async function updateAviso(avisoId: string, formData: {
+  titulo: string;
+  descripcion: string;
+  precio?: number;
+  rubroId: number;
+  subRubroId?: number;
+  departamentoId?: number;
+  distritoId?: number;
+  ciudadId?: number;
+  whatsapp?: string;
+  imagenes?: string[];
+}) {
+  const session = await getSession();
+  if (!session) return { success: false, message: "No hay sesión activa" };
+
+  try {
+    await db.query(
+      `UPDATE avisos SET 
+        avi_titulo = $1, avi_descripcion = $2, avi_precio = $3, 
+        avi_rubro_id = $4, avi_sub_rubro_id = $5, avi_departamento_id = $6, 
+        avi_distrito_id = $7, avi_ciudad_id = $8, avi_whatsapp = $9, avi_imagenes = $10
+       WHERE avi_id = $11 AND usu_id = $12`,
+      [
+        formData.titulo, formData.descripcion, formData.precio, 
+        formData.rubroId, formData.subRubroId, formData.departamentoId, 
+        formData.distritoId, formData.ciudadId, formData.whatsapp, 
+        JSON.stringify(formData.imagenes || []),
+        avisoId, session.id
+      ]
+    );
+
+    revalidatePath("/mis-avisos");
+    revalidatePath(`/avisos/${avisoId}`);
+    return { success: true, message: "Aviso actualizado correctamente" };
+  } catch (error) {
+    console.error("Update Aviso Error:", error);
+    return { success: false, message: "Error al actualizar el aviso" };
   }
 }
 
@@ -245,26 +294,41 @@ export async function rateAviso(avisoId: string, rating: number, comentario?: st
 
 export async function activateAviso(avisoId: string, dlocalPaymentId?: string) {
   try {
+    console.log(`Intentando activar aviso: ${avisoId}`);
+    
     // 1. Si viene el ID de dLocal, verificamos en su API primero
     if (dlocalPaymentId) {
       const { retrieveDLocalPayment } = await import("@/lib/dlocal");
       const dlocal = await retrieveDLocalPayment(dlocalPaymentId);
-      
-      if (!dlocal.success || (dlocal.payment.status !== 'PAID' && dlocal.payment.status !== 'PENDING')) {
-        // PENDING también lo dejamos pasar a veces según la política, pero PAID es lo ideal.
-      }
+      console.log("Verificación dLocal:", dlocal.success ? "Exitosa" : "Fallo");
     }
 
-    // 2. Activar el aviso en la DB
-    await db.query(
-      "UPDATE avisos SET avi_estado = 'AC', avi_fec_alta = CURRENT_TIMESTAMP WHERE avi_id = $1",
+    // 2. Activar el aviso en la DB (Usando esquema public explícito)
+    const res = await db.query(
+      "UPDATE public.avisos SET avi_estado = 'AC', avi_fec_alta = CURRENT_TIMESTAMP WHERE avi_id = $1 RETURNING cli_id",
       [avisoId]
     );
+
+    const cliId = res.rows[0]?.cli_id;
+    console.log(`Aviso activado. Resultado update: ${res.rowCount} filas afectadas. CliId: ${cliId}`);
+
+    // 3. Generar registro en la tabla plan_pago
+    if (cliId) {
+       console.log("Generando registro en plan_pago...");
+       await db.query(
+         `INSERT INTO public.plan_pago (
+            plan_pago_cli, plan_pago_fec, plan_pago_nro, 
+            plan_pago_estado, plan_pago_fec_pago, plan_pago_vto
+          ) VALUES ($1, CURRENT_DATE, 1, 'AC', CURRENT_DATE, CURRENT_DATE)`,
+         [cliId]
+       );
+       console.log("Registro en plan_pago creado exitosamente");
+    }
 
     revalidatePath("/mis-avisos");
     return { success: true };
   } catch (error) {
-    console.error("Error al activar aviso:", error);
-    return { success: false };
+    console.error("Error crítico al activar aviso:", error);
+    return { success: false, error: String(error) };
   }
 }

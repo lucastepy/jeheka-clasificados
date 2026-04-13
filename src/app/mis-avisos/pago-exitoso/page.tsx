@@ -26,7 +26,21 @@ export default async function PagoExitosoPage({
   }
 
   // Activar el aviso
-  await activateAviso(avisoId);
+  const activation = await activateAviso(avisoId);
+
+  if (!activation.success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="glass p-8 rounded-[2rem] text-center max-w-md border border-red-500/20">
+          <h1 className="text-2xl font-bold mb-4 text-red-500">Error de Activación</h1>
+          <p className="opacity-60 mb-8">El pago fue procesado, pero tuvimos un problema activando tu aviso automáticamente. Por favor contacta a soporte.</p>
+          <Link href="/mis-avisos" className="btn-premium px-8 py-3 text-xs uppercase font-bold tracking-widest">
+            Ir a mis avisos
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
