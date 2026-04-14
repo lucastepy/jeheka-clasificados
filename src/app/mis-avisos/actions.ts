@@ -261,11 +261,27 @@ export async function deleteAviso(avisoId: string) {
   if (!session) return { success: false, message: "No hay sesión activa" };
 
   try {
-    await db.query("DELETE FROM avisos WHERE avi_id = $1 AND usu_id = $2", [avisoId, session.id]);
+    // 1. Verificar si tiene una suscripción activa para darla de baja antes de borrar
+    const res = await db.query(
+      "SELECT dlocal_id, avi_es_suscripcion, avi_cancelado FROM public.avisos WHERE avi_id = $1 AND usu_id = $2",
+      [avisoId, session.id]
+    );
+    const aviso = res.rows[0];
+
+    if (aviso && aviso.avi_es_suscripcion && aviso.dlocal_id && !aviso.avi_cancelado) {
+      console.log(`Eliminando aviso con suscripción activa. Cancelando en dLocal: ${aviso.dlocal_id}`);
+      const { cancelDLocalSubscription } = await import("@/lib/dlocal");
+      await cancelDLocalSubscription(aviso.dlocal_id);
+    }
+
+    // 2. Eliminar el registro del aviso
+    await db.query("DELETE FROM public.avisos WHERE avi_id = $1 AND usu_id = $2", [avisoId, session.id]);
+    
     revalidatePath("/mis-avisos");
-    return { success: true, message: "Aviso eliminado." };
+    return { success: true, message: "Aviso eliminado y débito automático cancelado exitosamente." };
   } catch (error) {
-    return { success: false, message: "Error al eliminar." };
+    console.error("Error al eliminar aviso:", error);
+    return { success: false, message: "Error al eliminar el aviso." };
   }
 }
 
@@ -428,5 +444,86 @@ export async function cancelSubscription(avisoId: string) {
   } catch (error) {
     console.error("Error al cancelar suscripción:", error);
     return { success: false, message: "Error interno al procesar la cancelación" };
+  }
+}
+
+export async function retryPayment(avisoId: string) {
+  const session = await getSession();
+  if (!session) return { success: false, message: "No hay sesión activa" };
+
+  try {
+    const res = await db.query(
+      `SELECT a.avi_id, a.avi_titulo, p.id as plan_id, p.nombre as plan_nombre, p.precio_mensual, p.dlocal_plan_id 
+       FROM public.avisos a
+       JOIN public.planes p ON a.avi_plan_id = p.id
+       WHERE a.avi_id = $1 AND a.usu_id = $2`,
+      [avisoId, session.id]
+    );
+
+    const data = res.rows[0];
+    if (!data) return { success: false, message: "Aviso no encontrado" };
+
+    const { createDLocalPayment, createDLocalSubscription, createDLocalSubscriptionPlan } = await import("@/lib/dlocal");
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+    let payment;
+    let isSubscription = false;
+
+    if (data.precio_mensual > 0) {
+      isSubscription = true;
+      let dlocalPlanId = data.dlocal_plan_id;
+
+      if (!dlocalPlanId) {
+        const newPlan = await createDLocalSubscriptionPlan({
+          name: data.plan_nombre,
+          description: `Plan de suscripción mensual Jeheka - ${data.plan_nombre}`,
+          amount: data.precio_mensual,
+          currency: 'PYG',
+          country: 'PY',
+          frequency: 'MONTHLY'
+        });
+        if (newPlan.success && newPlan.id) {
+          dlocalPlanId = newPlan.id;
+          await db.query("UPDATE public.planes SET dlocal_plan_id = $1 WHERE id = $2", [dlocalPlanId, data.plan_id]);
+        } else {
+          isSubscription = false;
+        }
+      }
+
+      if (isSubscription && dlocalPlanId) {
+        payment = await createDLocalSubscription({
+          plan_id: dlocalPlanId,
+          order_id: avisoId.toString(),
+          success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${avisoId}&type=sub`,
+          back_url: `${baseUrl}/mis-avisos`,
+          notification_url: `${baseUrl}/api/webhooks/dlocal`
+        });
+      }
+    }
+
+    if (!isSubscription || !payment?.success) {
+      payment = await createDLocalPayment({
+        amount: data.precio_mensual,
+        currency: 'PYG',
+        country: 'PY',
+        order_id: avisoId.toString(),
+        description: `Jeheka - Plan ${data.plan_nombre}`,
+        success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${avisoId}`,
+        back_url: `${baseUrl}/mis-avisos`,
+        notification_url: `${baseUrl}/api/webhooks/dlocal`
+      });
+    }
+
+    if (!payment.success) return { success: false, message: "Error al generar link de pago" };
+
+    await db.query(
+      "UPDATE public.avisos SET dlocal_id = $1, avi_es_suscripcion = $2 WHERE avi_id = $3", 
+      [payment.id, isSubscription, avisoId]
+    );
+
+    return { success: true, checkoutUrl: payment.redirect_url };
+  } catch (error) {
+    console.error("Error retryPayment:", error);
+    return { success: false, message: "Error al refrescar el pago" };
   }
 }

@@ -7,7 +7,7 @@ import { activateAviso } from "../actions";
 export default async function PagoExitosoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ avisoId?: string; status?: string }>;
+  searchParams: Promise<{ avisoId?: string; status?: string; type?: string }>;
 }) {
   const { avisoId, type } = await searchParams;
   const isSubscription = type === "sub";
