@@ -365,21 +365,49 @@ export async function activateAviso(avisoId: string, dlocalPaymentId?: string) {
   try {
     console.log(`Intentando activar aviso: ${avisoId}`);
     
-    // 1. Si viene el ID de dLocal, verificamos en su API primero
+    let pagoMarca = null;
+    let pagoUltimos4 = null;
+    let pagoTipo = null;
+    let montoNeto = null;
+
+    // 1. Si viene el ID de dLocal, verificamos en su API y extraemos detalles
     if (dlocalPaymentId) {
       const { retrieveDLocalPayment } = await import("@/lib/dlocal");
       const dlocal = await retrieveDLocalPayment(dlocalPaymentId);
-      console.log("Verificación dLocal:", dlocal.success ? "Exitosa" : "Fallo");
+      
+      if (dlocal.success && dlocal.payment) {
+        const p = dlocal.payment;
+        pagoMarca = p.card?.brand || p.payment_method_id;
+        pagoUltimos4 = p.card?.last_four;
+        pagoTipo = p.card?.card_type || (dlocalPaymentId.startsWith('sub_') ? 'subscription' : 'payment');
+
+        // 2. Calcular montos netos basados en la tabla de comisiones
+        const montoBruto = p.amount || 0;
+        const commRes = await db.query(
+          "SELECT com_porcentaje, com_fijo FROM public.comisiones WHERE com_activo = TRUE ORDER BY com_id DESC LIMIT 1"
+        );
+        
+        if (commRes.rows[0]) {
+          const { com_porcentaje, com_fijo } = commRes.rows[0];
+          const feePorc = montoBruto * (Number(com_porcentaje) / 100);
+          const feeFijo = Number(com_fijo);
+          montoNeto = montoBruto - feePorc - feeFijo;
+        }
+      }
     }
 
-    // 2. Activar el aviso en la DB y establecer fecha de vencimiento (1 mes adelante)
+    // 3. Activar el aviso en la DB y guardar Info de Pago
     const res = await db.query(
       `UPDATE public.avisos 
        SET avi_estado = 'AC', 
            avi_fec_alta = CURRENT_TIMESTAMP,
-           avi_fec_vto = CURRENT_TIMESTAMP + INTERVAL '1 month'
+           avi_fec_vto = CURRENT_TIMESTAMP + INTERVAL '1 month',
+           avi_pago_marca = $2,
+           avi_pago_ultimos4 = $3,
+           avi_pago_tipo = $4,
+           avi_pago_monto_neto = $5
        WHERE avi_id = $1 RETURNING cli_id`,
-      [avisoId]
+      [avisoId, pagoMarca, pagoUltimos4, pagoTipo, montoNeto]
     );
 
     const cliId = res.rows[0]?.cli_id;

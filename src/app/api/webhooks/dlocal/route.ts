@@ -8,13 +8,12 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("dLocal Webhook Received:", body);
 
-    const { status, order_id } = body;
+    const { status, order_id, id: payment_id } = body;
 
-    // dLocal Go envía el estado en el campo 'status'
-    // PAID significa que el pago fue exitoso
+    // El id del pago en dLocal viene como 'id' en el body del webhook
     if (status === "PAID" && order_id) {
-      console.log(`Activando aviso ${order_id} via Webhook`);
-      await activateAviso(order_id);
+      console.log(`Activando aviso ${order_id} via Webhook (Pago: ${payment_id})`);
+      await activateAviso(order_id, payment_id);
     }
 
     return NextResponse.json({ received: true });

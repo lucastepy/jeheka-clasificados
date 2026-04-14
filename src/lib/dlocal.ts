@@ -86,7 +86,7 @@ export async function createDLocalSubscriptionPlan(data: DLocalSubscriptionPlanR
   console.log(`Creando plan de suscripción dLocal: ${data.name}`);
 
   try {
-    const response = await fetch(`${baseUrl}/subscription_plans`, {
+    const response = await fetch(`${baseUrl}/plans`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data)
