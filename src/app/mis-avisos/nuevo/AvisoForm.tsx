@@ -57,6 +57,7 @@ export default function AvisoForm({
   const [whatsapp, setWhatsapp] = useState(initialData?.avi_whatsapp || userData?.usu_whatsapp || "");
   const [imagenes, setImagenes] = useState<string[]>(initialData?.avi_imagenes || []);
   const [planId, setPlanId] = useState(initialData?.avi_plan_id?.toString() || "");
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
 
   const [depId, setDepId] = useState(initialData?.avi_departamento_id?.toString() || userData?.usu_departamento_id?.toString() || "");
   const [disId, setDisId] = useState(initialData?.avi_distrito_id?.toString() || userData?.usu_distrito_id?.toString() || "");
@@ -192,6 +193,11 @@ export default function AvisoForm({
     
     if (!planId) {
       toast.error("Debes seleccionar un plan para tu aviso");
+      return;
+    }
+
+    if (!isEditing && !aceptaTerminos) {
+      toast.error("Debes aceptar las bases y condiciones para continuar con el débito automático");
       return;
     }
     
@@ -460,6 +466,21 @@ export default function AvisoForm({
            )}
         </div>
       </div>
+      {/* Sección 4: Bases y Condiciones */}
+      {!isEditing && (
+        <div className="flex items-start gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
+          <input 
+            type="checkbox" 
+            id="terms"
+            checked={aceptaTerminos}
+            onChange={(e) => setAceptaTerminos(e.target.checked)}
+            className="mt-1 w-4 h-4 rounded border-white/10 bg-background/50 text-emerald-500 focus:ring-emerald-500/30"
+          />
+          <label htmlFor="terms" className="text-xs opacity-60 leading-relaxed cursor-pointer select-none">
+            Acepto las <span className="text-emerald-500 font-bold underline">Bases y Condiciones</span> del portal y manifiesto mi conformidad para que se realicen los <span className="text-emerald-500 font-bold">débitos automáticos</span> mensuales a través de dLocal Go para el mantenimiento de mi aviso destacado.
+          </label>
+        </div>
+      )}
 
       <div className="flex justify-end pt-8">
         <button 

@@ -40,6 +40,7 @@ export const searchService = {
       LEFT JOIN departamentos d ON a.avi_departamento_id = d.dep_cod
       LEFT JOIN ciudades c ON a.avi_ciudad_id = c.ciu_cod AND a.avi_distrito_id = c.ciu_dis_cod
       WHERE (a.avi_estado = 'AC' OR a.avi_estado = 'activo')
+      AND (a.avi_fec_vto IS NULL OR a.avi_fec_vto > CURRENT_TIMESTAMP)
     `;
 
     // Filtro de texto (optimizado con tsquery)

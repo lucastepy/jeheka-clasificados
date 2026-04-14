@@ -17,6 +17,9 @@ interface Aviso {
   avi_vistas_count: number;
   avi_imagenes: any;
   rubro_nombre?: string;
+  avi_es_suscripcion?: boolean;
+  avi_fec_vto?: string;
+  avi_cancelado?: boolean;
 }
 
 export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
@@ -31,6 +34,22 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
       toast.success(res.message);
     } else {
       toast.error(res.message);
+    }
+  };
+
+  const handleCancelSubscription = async (id: string) => {
+    if (!confirm("¿Deseas cancelar el débito automático? Tu aviso seguirá activo hasta el vencimiento actual.")) return;
+    
+    // Importación dinámica para el front
+    const { cancelSubscription } = await import("./actions");
+    const res = await cancelSubscription(id);
+    
+    if (res.success) {
+       toast.success(res.message);
+       // Actualizamos el estado local
+       setAvisos(avisos.map(a => a.avi_id === id ? { ...a, avi_cancelado: true } : a));
+    } else {
+       toast.error(res.message);
     }
   };
 
@@ -93,6 +112,21 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
                     </div>
                   </div>
                 </div>
+
+                {/* Info de Suscripción */}
+                {aviso.avi_es_suscripcion && aviso.avi_fec_vto && (
+                  <div className="mt-4 p-3 bg-white/5 rounded-2xl border border-white/5">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">Vencimiento</span>
+                      <span className={`text-[9px] font-bold uppercase tracking-widest ${aviso.avi_cancelado ? 'text-orange-500' : 'text-emerald-500'}`}>
+                        {aviso.avi_cancelado ? 'No renovará' : 'Débito activo'}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium opacity-60">
+                      {new Intl.DateTimeFormat('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(aviso.avi_fec_vto))}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
@@ -108,12 +142,25 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
                   <Link 
                     href={`/mis-avisos/${aviso.avi_id}/editar`}
                     className="p-2.5 rounded-xl hover:bg-emerald-500/10 text-emerald-500 transition-all border border-transparent hover:border-emerald-500/20"
+                    title="Editar"
                   >
                     <Edit3 className="w-4 h-4" />
                   </Link>
+                  
+                  {aviso.avi_es_suscripcion && !aviso.avi_cancelado && (
+                    <button 
+                      onClick={() => handleCancelSubscription(aviso.avi_id)}
+                      className="p-2.5 rounded-xl hover:bg-orange-500/10 text-orange-500 transition-all border border-transparent hover:border-orange-500/20"
+                      title="Cancelar Débito Automático"
+                    >
+                      <Clock className="w-4 h-4" />
+                    </button>
+                  )}
+
                   <button 
                     onClick={() => handleDelete(aviso.avi_id)}
                     className="p-2.5 rounded-xl hover:bg-red-500/10 text-red-500 transition-all border border-transparent hover:border-red-500/20"
+                    title="Eliminar"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

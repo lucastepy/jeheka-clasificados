@@ -9,7 +9,8 @@ export default async function PagoExitosoPage({
 }: {
   searchParams: Promise<{ avisoId?: string; status?: string }>;
 }) {
-  const { avisoId } = await searchParams;
+  const { avisoId, type } = await searchParams;
+  const isSubscription = type === "sub";
 
   if (!avisoId) {
     return (
@@ -52,10 +53,20 @@ export default async function PagoExitosoPage({
         </div>
         
         <h1 className="text-4xl font-black mb-4 tracking-tight">¡Pago Confirmado!</h1>
-        <p className="text-lg opacity-60 mb-12">
+        <p className="text-lg opacity-60 mb-6">
           Tu aviso ha sido activado exitosamente y ya es visible en Jeheka.
           ¡Muchos éxitos con tu venta!
         </p>
+
+        {isSubscription && (
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-10 inline-block">
+            <p className="text-sm text-emerald-400 font-medium">
+              Suscripción activa: Se realizarán débitos automáticos mensuales para mantener tu aviso destacado.
+            </p>
+          </div>
+        )}
+
+        <div className="pt-2"></div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link 

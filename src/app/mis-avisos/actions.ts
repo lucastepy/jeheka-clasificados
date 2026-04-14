@@ -9,7 +9,8 @@ export async function getMisAvisos() {
   if (!session) return [];
 
   const res = await db.query(
-    `SELECT a.*, r.nombre as rubro_nombre, s.nombre as sub_rubro_nombre
+    `SELECT a.*, r.nombre as rubro_nombre, s.nombre as sub_rubro_nombre,
+            a.avi_es_suscripcion, a.avi_fec_vto, a.avi_cancelado
      FROM avisos a
      LEFT JOIN rubros r ON a.avi_rubro_id = r.id
      LEFT JOIN sub_rubros s ON a.avi_sub_rubro_id = s.id
@@ -112,28 +113,72 @@ export async function createAviso(formData: {
     const aviId = res.rows[0].avi_id;
 
     // 2. Obtener el monto del plan seleccionado para generar el pago
-    const planRes = await db.query("SELECT nombre, precio_mensual FROM planes WHERE id = $1", [formData.planId]);
+    const planRes = await db.query("SELECT id, nombre, precio_mensual, dlocal_plan_id FROM public.planes WHERE id = $1", [formData.planId]);
     const plan = planRes.rows[0];
 
     if (!plan) {
       return { success: false, message: "Plan no encontrado." };
     }
 
-    // 3. Generar el link de pago en dLocal Go
-    // Importamos dinámicamente o arriba. Mejor arriba pero como es server action...
-    const { createDLocalPayment } = await import("@/lib/dlocal");
+    const { createDLocalPayment, createDLocalSubscription, createDLocalSubscriptionPlan } = await import("@/lib/dlocal");
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
-    const payment = await createDLocalPayment({
-      amount: plan.precio_mensual,
-      currency: 'PYG',
-      country: 'PY',
-      order_id: aviId.toString(),
-      description: `Jeheka - Plan ${plan.nombre}`,
-      success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${aviId}`,
-      back_url: `${baseUrl}/mis-avisos/nuevo`,
-      notification_url: `${baseUrl}/api/webhooks/dlocal`
-    });
+    let payment;
+    let isSubscription = false;
+
+    // Si el plan tiene precio mensual y es para suscripción, intentamos débito automático
+    if (plan.precio_mensual > 0) {
+      isSubscription = true;
+      let dlocalPlanId = plan.dlocal_plan_id;
+
+      // Si no tiene ID de plan dLocal, lo creamos ahora
+      if (!dlocalPlanId) {
+        console.log(`El plan ${plan.nombre} no tiene dLocal ID. Creando plan en dLocal Go...`);
+        const newPlan = await createDLocalSubscriptionPlan({
+          name: plan.nombre,
+          description: `Plan de suscripción mensual Jeheka - ${plan.nombre}`,
+          amount: plan.precio_mensual,
+          currency: 'PYG',
+          country: 'PY',
+          frequency: 'MONTHLY'
+        });
+
+        if (newPlan.success && newPlan.id) {
+          dlocalPlanId = newPlan.id;
+          await db.query("UPDATE public.planes SET dlocal_plan_id = $1 WHERE id = $2", [dlocalPlanId, plan.id]);
+          console.log(`Plan dLocal creado y guardado: ${dlocalPlanId}`);
+        } else {
+          console.error("Error al crear plan en dLocal, cayendo a pago único:", newPlan.error);
+          isSubscription = false;
+        }
+      }
+
+      if (isSubscription && dlocalPlanId) {
+        console.log(`Iniciando flujo de SUSCRIPCIÓN para aviso ${aviId}`);
+        payment = await createDLocalSubscription({
+          plan_id: dlocalPlanId,
+          order_id: aviId.toString(),
+          success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${aviId}&type=sub`,
+          back_url: `${baseUrl}/mis-avisos/nuevo`,
+          notification_url: `${baseUrl}/api/webhooks/dlocal`
+        });
+      }
+    }
+
+    // Si no es suscripción o falló la creación de suscripción, usamos pago único (fallback o manual)
+    if (!isSubscription || !payment?.success) {
+      console.log(`Iniciando flujo de PAGO ÚNICO para aviso ${aviId}`);
+      payment = await createDLocalPayment({
+        amount: plan.precio_mensual,
+        currency: 'PYG',
+        country: 'PY',
+        order_id: aviId.toString(),
+        description: `Jeheka - Plan ${plan.nombre}`,
+        success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${aviId}`,
+        back_url: `${baseUrl}/mis-avisos/nuevo`,
+        notification_url: `${baseUrl}/api/webhooks/dlocal`
+      });
+    }
 
     if (!payment.success) {
       // Si falla el pago, igual el aviso quedó en pendiente, pero avisamos al usuario
@@ -144,6 +189,12 @@ export async function createAviso(formData: {
         id: aviId
       };
     }
+
+    // Guardamos la referencia de dLocal en el aviso
+    await db.query(
+      "UPDATE public.avisos SET dlocal_id = $1, avi_es_suscripcion = $2 WHERE avi_id = $3", 
+      [payment.id, isSubscription, aviId]
+    );
 
     revalidatePath("/mis-avisos");
     return { 
@@ -251,7 +302,9 @@ export async function getAvisoById(id: string) {
        LEFT JOIN departamentos d ON a.avi_departamento_id = d.dep_cod
        LEFT JOIN distritos dist ON a.avi_distrito_id = dist.dis_cod AND a.avi_departamento_id = dist.dis_dep_cod
        LEFT JOIN ciudades c ON a.avi_ciudad_id = c.ciu_cod AND a.avi_distrito_id = c.ciu_dis_cod
-       WHERE a.avi_id = $1`,
+       WHERE a.avi_id = $1 
+       AND (a.avi_estado = 'AC' OR a.avi_estado = 'activo')
+       AND (a.avi_fec_vto IS NULL OR a.avi_fec_vto > CURRENT_TIMESTAMP)`,
       [id]
     );
     return res.rows[0];
@@ -303,9 +356,13 @@ export async function activateAviso(avisoId: string, dlocalPaymentId?: string) {
       console.log("Verificación dLocal:", dlocal.success ? "Exitosa" : "Fallo");
     }
 
-    // 2. Activar el aviso en la DB (Usando esquema public explícito)
+    // 2. Activar el aviso en la DB y establecer fecha de vencimiento (1 mes adelante)
     const res = await db.query(
-      "UPDATE public.avisos SET avi_estado = 'AC', avi_fec_alta = CURRENT_TIMESTAMP WHERE avi_id = $1 RETURNING cli_id",
+      `UPDATE public.avisos 
+       SET avi_estado = 'AC', 
+           avi_fec_alta = CURRENT_TIMESTAMP,
+           avi_fec_vto = CURRENT_TIMESTAMP + INTERVAL '1 month'
+       WHERE avi_id = $1 RETURNING cli_id`,
       [avisoId]
     );
 
@@ -330,5 +387,46 @@ export async function activateAviso(avisoId: string, dlocalPaymentId?: string) {
   } catch (error) {
     console.error("Error crítico al activar aviso:", error);
     return { success: false, error: String(error) };
+  }
+}
+
+export async function cancelSubscription(avisoId: string) {
+  const session = await getSession();
+  if (!session) return { success: false, message: "No hay sesión activa" };
+
+  try {
+    // 1. Obtener la suscripción del aviso
+    const res = await db.query(
+      "SELECT dlocal_id, avi_es_suscripcion FROM public.avisos WHERE avi_id = $1 AND usu_id = $2",
+      [avisoId, session.id]
+    );
+
+    const aviso = res.rows[0];
+    if (!aviso || !aviso.avi_es_suscripcion || !aviso.dlocal_id) {
+       return { success: false, message: "No se encontró una suscripción activa para este aviso" };
+    }
+
+    // 2. Cancelar en dLocal
+    const { cancelDLocalSubscription } = await import("@/lib/dlocal");
+    const dlocal = await cancelDLocalSubscription(aviso.dlocal_id);
+
+    if (!dlocal.success) {
+      console.error("Error al cancelar en dLocal:", dlocal.error);
+      return { success: false, message: "Hubo un error al comunicar la cancelación con dLocal" };
+    }
+
+    // 3. Marcar como cancelado en la DB
+    // El estado sigue siendo 'AC' (activo) pero avi_cancelado = true
+    // El aviso se desactivará automáticamente cuando llegue su avi_fec_vto
+    await db.query(
+      "UPDATE public.avisos SET avi_cancelado = TRUE WHERE avi_id = $1",
+      [avisoId]
+    );
+
+    revalidatePath("/mis-avisos");
+    return { success: true, message: "Suscripción cancelada. El aviso seguirá activo hasta el final de tu ciclo de facturación." };
+  } catch (error) {
+    console.error("Error al cancelar suscripción:", error);
+    return { success: false, message: "Error interno al procesar la cancelación" };
   }
 }
