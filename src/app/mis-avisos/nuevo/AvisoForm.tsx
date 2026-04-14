@@ -365,11 +365,18 @@ export default function AvisoForm({
                     className="w-full bg-emerald-500/5 border border-emerald-500/20 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer text-emerald-500 font-bold"
                   >
                     <option value="">Seleccionar plan de pago</option>
-                    {planes.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.nombre} - Gs. {new Intl.NumberFormat('es-PY').format(p.precio_mensual)}
-                      </option>
-                    ))}
+                    {planes.map(p => {
+                      const net = Number(p.precio_mensual);
+                      const sPorc = Number(p.plan_sum_porc || 0);
+                      const sFijo = Number(p.plan_sum_fijo || 0);
+                      const bruto = sPorc >= 100 ? (net + sFijo) : Math.ceil((net + sFijo) / (1 - (sPorc / 100)));
+                      
+                      return (
+                        <option key={p.id} value={p.id}>
+                          {p.nombre} - Gs. {new Intl.NumberFormat('es-PY').format(bruto)}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               )}

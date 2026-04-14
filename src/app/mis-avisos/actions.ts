@@ -112,13 +112,23 @@ export async function createAviso(formData: {
 
     const aviId = res.rows[0].avi_id;
 
-    // 2. Obtener el monto del plan seleccionado para generar el pago
-    const planRes = await db.query("SELECT id, nombre, precio_mensual, dlocal_plan_id FROM public.planes WHERE id = $1", [formData.planId]);
+    // 2. Obtener el monto del plan seleccionado para generar el pago (Calculando Bruto)
+    const planRes = await db.query(`
+      SELECT p.id, p.nombre, p.precio_mensual, p.dlocal_plan_id,
+        (SELECT COALESCE(SUM(com_porcentaje), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_porc,
+        (SELECT COALESCE(SUM(com_fijo), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_fijo
+      FROM public.planes p WHERE id = $1
+    `, [formData.planId]);
     const plan = planRes.rows[0];
 
     if (!plan) {
       return { success: false, message: "Plan no encontrado." };
     }
+
+    const { sum_porc, sum_fijo, precio_mensual } = plan;
+    const montoBruto = Number(sum_porc) >= 100 
+      ? (Number(precio_mensual) + Number(sum_fijo)) 
+      : Math.ceil((Number(precio_mensual) + Number(sum_fijo)) / (1 - (Number(sum_porc) / 100)));
 
     const { createDLocalPayment, createDLocalSubscription, createDLocalSubscriptionPlan } = await import("@/lib/dlocal");
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -137,7 +147,7 @@ export async function createAviso(formData: {
         const newPlan = await createDLocalSubscriptionPlan({
           name: plan.nombre,
           description: `Plan de suscripción mensual Jeheka - ${plan.nombre}`,
-          amount: plan.precio_mensual,
+          amount: montoBruto,
           currency: 'PYG',
           country: 'PY',
           frequency: 'MONTHLY'
@@ -169,7 +179,7 @@ export async function createAviso(formData: {
     if (!isSubscription || !payment?.success) {
       console.log(`Iniciando flujo de PAGO ÚNICO para aviso ${aviId}`);
       payment = await createDLocalPayment({
-        amount: plan.precio_mensual,
+        amount: montoBruto,
         currency: 'PYG',
         country: 'PY',
         order_id: aviId.toString(),
@@ -251,7 +261,12 @@ export async function updateAviso(avisoId: string, formData: {
 
 export async function getPlanesPortal() {
   const res = await db.query(
-    "SELECT id, nombre, precio_mensual FROM public.planes WHERE plan_mostrar_portal = TRUE ORDER BY precio_mensual ASC"
+    `SELECT p.id, p.nombre, p.precio_mensual,
+      (SELECT COALESCE(SUM(com_porcentaje), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as plan_sum_porc,
+      (SELECT COALESCE(SUM(com_fijo), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as plan_sum_fijo
+     FROM public.planes p 
+     WHERE plan_mostrar_portal = TRUE 
+     ORDER BY precio_mensual ASC`
   );
   return res.rows;
 }
@@ -481,7 +496,9 @@ export async function retryPayment(avisoId: string) {
 
   try {
     const res = await db.query(
-      `SELECT a.avi_id, a.avi_titulo, p.id as plan_id, p.nombre as plan_nombre, p.precio_mensual, p.dlocal_plan_id 
+      `SELECT a.avi_id, a.avi_titulo, p.id as plan_id, p.nombre as plan_nombre, p.precio_mensual, p.dlocal_plan_id,
+        (SELECT COALESCE(SUM(com_porcentaje), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_porc,
+        (SELECT COALESCE(SUM(com_fijo), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_fijo
        FROM public.avisos a
        JOIN public.planes p ON a.avi_plan_id = p.id
        WHERE a.avi_id = $1 AND a.usu_id = $2`,
@@ -497,7 +514,13 @@ export async function retryPayment(avisoId: string) {
     let payment;
     let isSubscription = false;
 
-    if (data.precio_mensual > 0) {
+    // Calculando Bruto para reintento
+    const { sum_porc, sum_fijo, precio_mensual } = data as any;
+    const montoBruto = Number(sum_porc) >= 100 
+      ? (Number(precio_mensual) + Number(sum_fijo)) 
+      : Math.ceil((Number(precio_mensual) + Number(sum_fijo)) / (1 - (Number(sum_porc) / 100)));
+
+    if (precio_mensual > 0) {
       isSubscription = true;
       let dlocalPlanId = data.dlocal_plan_id;
 
@@ -505,7 +528,7 @@ export async function retryPayment(avisoId: string) {
         const newPlan = await createDLocalSubscriptionPlan({
           name: data.plan_nombre,
           description: `Plan de suscripción mensual Jeheka - ${data.plan_nombre}`,
-          amount: data.precio_mensual,
+          amount: montoBruto,
           currency: 'PYG',
           country: 'PY',
           frequency: 'MONTHLY'
@@ -531,7 +554,7 @@ export async function retryPayment(avisoId: string) {
 
     if (!isSubscription || !payment?.success) {
       payment = await createDLocalPayment({
-        amount: data.precio_mensual,
+        amount: montoBruto,
         currency: 'PYG',
         country: 'PY',
         order_id: avisoId.toString(),
