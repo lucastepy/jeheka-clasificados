@@ -246,29 +246,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="mt-auto py-12 px-6 lg:px-12 border-t border-black/5 dark:border-white/5 bg-slate-500/5">
-        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex items-center gap-4 text-center md:text-left">
-            <img 
-              src="/logo-jeheka.png" 
-              alt="jeheka logo" 
-              className="h-12 w-auto object-contain rounded-xl opacity-80"
-            />
-            <div className="flex flex-col text-left">
-              <div className="text-sm font-bold tracking-tighter lowercase leading-none">jeheka</div>
-              <p className="text-[8px] font-bold opacity-40 uppercase tracking-widest leading-tight">
-                Clasificado de<br/>Servicios en Paraguay
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-8 text-[9px] font-bold uppercase tracking-widest opacity-40">
-            <a href="#" className="hover:text-emerald-500 transition-colors">Ayuda</a>
-            <a href="#" className="hover:text-emerald-500 transition-colors">Términos</a>
-            <a href="#" className="hover:text-emerald-500 transition-colors">Privacidad</a>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

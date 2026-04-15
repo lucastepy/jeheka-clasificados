@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { UserMenu } from "@/components/UserMenu";
 import { HeaderActions } from "@/components/HeaderActions";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Jeheka Clasificados | Tu Portal de Servicios",
@@ -67,8 +68,9 @@ export default async function RootLayout({
           </header>
           <Toaster position="top-right" richColors closeButton />
           
-          <main className="pt-14">
+          <main className="pt-14 min-h-[calc(100vh-56px)] flex flex-col">
             {children}
+            <Footer />
           </main>
         </ThemeProvider>
       </body>
