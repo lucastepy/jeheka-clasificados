@@ -56,18 +56,29 @@ export default function SobreNosotrosPage() {
             </div>
           </div>
           
-          <div className="relative">
-            <div className="aspect-square rounded-[40px] glass border border-white/10 overflow-hidden relative">
-               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent" />
-               <div className="absolute inset-0 flex items-center justify-center">
-                  <img src="/logo-jeheka.png" alt="Jeheka Logo" className="w-1/2 opacity-20 grayscale brightness-0 invert" />
-               </div>
+          <div className="grid grid-cols-1 gap-6 relative">
+            <div className="p-8 rounded-[32px] glass border border-emerald-500/10 hover:border-emerald-500/30 transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest mb-2">Seguridad Garantizada</h3>
+              <p className="text-[11px] opacity-50 leading-relaxed font-bold uppercase tracking-tight">
+                Verificamos manualmente los perfiles destacados para asegurar que recibas un servicio de calidad.
+              </p>
             </div>
-            {/* Floating badge */}
-            <div className="absolute -bottom-6 -left-6 glass-emerald border border-emerald-500/20 p-6 rounded-3xl shadow-xl max-w-[200px]">
-               <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-3" />
-               <p className="text-[11px] font-bold leading-tight opacity-70">Plataforma Verificada de Confianza</p>
+
+            <div className="p-8 rounded-[32px] glass border border-emerald-500/10 hover:border-emerald-500/30 transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Target className="w-6 h-6" />
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest mb-2">Enfoque Local</h3>
+              <p className="text-[11px] opacity-50 leading-relaxed font-bold uppercase tracking-tight">
+                Diseñado por paraguayos para paraguayos. Conocemos tus necesidades y el mercado local.
+              </p>
             </div>
+
+            {/* Floating decoration */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
           </div>
         </div>
       </section>

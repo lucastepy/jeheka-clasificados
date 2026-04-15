@@ -58,23 +58,12 @@ export default function ContactoPage() {
 
             <div className="flex gap-6 items-start">
               <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                <Phone className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Llámanos</h3>
-                <p className="text-sm font-bold">+595 981 123 456</p>
-                <p className="text-[10px] opacity-40 font-bold uppercase mt-1">Lun - Vie, 08:00 a 18:00</p>
-              </div>
-            </div>
-
-            <div className="flex gap-6 items-start">
-              <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Oficina Central</h3>
                 <p className="text-sm font-bold">Asunción, Paraguay</p>
-                <p className="text-[10px] opacity-40 font-bold uppercase mt-1">WTC Tower 2, Piso 12</p>
+                <p className="text-[10px] opacity-40 font-bold uppercase mt-1">Denis Roa esq. Alas Paraguayas</p>
               </div>
             </div>
           </div>
@@ -89,7 +78,6 @@ export default function ContactoPage() {
                 <input 
                   required
                   type="text" 
-                  placeholder="Ej: Juan Pérez"
                   className="w-full bg-slate-500/5 border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-1 focus:ring-emerald-500/30 focus:bg-emerald-500/5 transition-all"
                 />
               </div>
@@ -98,7 +86,6 @@ export default function ContactoPage() {
                 <input 
                   required
                   type="email" 
-                  placeholder="juan@ejemplo.com"
                   className="w-full bg-slate-500/5 border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-1 focus:ring-emerald-500/30 focus:bg-emerald-500/5 transition-all"
                 />
               </div>
