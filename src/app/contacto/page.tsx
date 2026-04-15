@@ -93,7 +93,8 @@ export default function ContactoPage() {
 
             <div className="space-y-2">
               <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Asunto</label>
-              <select className="w-full bg-slate-500/5 border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-1 focus:ring-emerald-500/30 focus:bg-emerald-500/5 transition-all appearance-none cursor-pointer">
+              <select defaultValue="" className="w-full bg-slate-500/5 border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-1 focus:ring-emerald-500/30 focus:bg-emerald-500/5 transition-all appearance-none cursor-pointer">
+                <option value="" disabled>Seleccionar</option>
                 <option value="soporte">Soporte Técnico</option>
                 <option value="ventas">Ventas y Planes</option>
                 <option value="reclamos">Reclamos</option>
