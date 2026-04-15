@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, Target, Rocket, Search, MessageCircle, Star, CheckCircle2 } from "lucide-react";
+import { Users, Target, Rocket, Search, MessageCircle, Star, CheckCircle2, ShieldCheck } from "lucide-react";
 
 export default function SobreNosotrosPage() {
   return (
