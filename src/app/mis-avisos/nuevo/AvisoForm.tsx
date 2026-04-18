@@ -229,13 +229,6 @@ export default function AvisoForm({
       } else {
         const res = await createAviso(payload);
         if (res.success) {
-          // Redirección directa según documentación de dLocal API
-          if (res.checkoutUrl) {
-             toast.success("Redirigiendo a la plataforma de pago...");
-             window.location.href = res.checkoutUrl as string;
-             return;
-          }
-
           toast.success(res.message);
           router.push("/mis-avisos");
         } else {
@@ -364,19 +357,12 @@ export default function AvisoForm({
                     onChange={(e) => setPlanId(e.target.value)}
                     className="w-full bg-emerald-500/5 border border-emerald-500/20 rounded-xl py-4 px-4 text-sm focus:ring-1 focus:ring-emerald-500/30 outline-none cursor-pointer text-emerald-500 font-bold"
                   >
-                    <option value="">Seleccionar plan de pago</option>
-                    {planes.map(p => {
-                      const net = Number(p.precio_mensual);
-                      const sPorc = Number(p.plan_sum_porc || 0);
-                      const sFijo = Number(p.plan_sum_fijo || 0);
-                      const bruto = sPorc >= 100 ? (net + sFijo) : Math.ceil((net + sFijo) / (1 - (sPorc / 100)));
-                      
-                      return (
-                        <option key={p.id} value={p.id}>
-                          {p.nombre} - Gs. {new Intl.NumberFormat('es-PY').format(bruto)}
-                        </option>
-                      );
-                    })}
+                    <option value="">Seleccionar plan</option>
+                    {planes.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.nombre} (Sin costo)
+                      </option>
+                    ))}
                   </select>
                 </div>
               )}
@@ -473,21 +459,6 @@ export default function AvisoForm({
            )}
         </div>
       </div>
-      {/* Sección 4: Bases y Condiciones */}
-      {!isEditing && (
-        <div className="flex items-start gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
-          <input 
-            type="checkbox" 
-            id="terms"
-            checked={aceptaTerminos}
-            onChange={(e) => setAceptaTerminos(e.target.checked)}
-            className="mt-1 w-4 h-4 rounded border-white/10 bg-background/50 text-emerald-500 focus:ring-emerald-500/30"
-          />
-          <label htmlFor="terms" className="text-xs opacity-60 leading-relaxed cursor-pointer select-none">
-            Acepto las <span className="text-emerald-500 font-bold underline">Bases y Condiciones</span> del portal y manifiesto mi conformidad para que se realicen los <span className="text-emerald-500 font-bold">débitos automáticos</span> mensuales a través de dLocal Go para el mantenimiento de mi aviso destacado.
-          </label>
-        </div>
-      )}
 
       <div className="flex justify-end pt-8">
         <button 

@@ -93,14 +93,14 @@ export async function createAviso(formData: {
       console.log("Cliente creado y vinculado exitosamente con ID:", cliId);
     }
 
-    // 1. Crear el aviso en estado Pendiente ('PE')
+    // 1. Crear el aviso en estado Activo ('AC') directamente
     const res = await db.query(
       `INSERT INTO avisos (
         usu_id, cli_id, avi_titulo, avi_descripcion, avi_precio, 
         avi_rubro_id, avi_sub_rubro_id, avi_departamento_id, 
         avi_distrito_id, avi_ciudad_id, avi_whatsapp, avi_imagenes, 
-        avi_estado, avi_plan_id, avi_moneda
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'PE', $13, 'PY')
+        avi_estado, avi_plan_id, avi_moneda, avi_fec_alta, avi_fec_vto
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'AC', $13, 'PY', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 month')
       RETURNING avi_id`,
       [
         session.id, cliId, titulo, descripcion, precio, 
@@ -112,106 +112,11 @@ export async function createAviso(formData: {
 
     const aviId = res.rows[0].avi_id;
 
-    // 2. Obtener el monto del plan seleccionado para generar el pago (Calculando Bruto)
-    const planRes = await db.query(`
-      SELECT p.id, p.nombre, p.precio_mensual, p.dlocal_plan_id,
-        (SELECT COALESCE(SUM(com_porcentaje), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_porc,
-        (SELECT COALESCE(SUM(com_fijo), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_fijo
-      FROM public.planes p WHERE id = $1
-    `, [formData.planId]);
-    const plan = planRes.rows[0];
-
-    if (!plan) {
-      return { success: false, message: "Plan no encontrado." };
-    }
-
-    const { sum_porc, sum_fijo, precio_mensual } = plan;
-    const montoBruto = Number(sum_porc) >= 100 
-      ? (Number(precio_mensual) + Number(sum_fijo)) 
-      : Math.ceil((Number(precio_mensual) + Number(sum_fijo)) / (1 - (Number(sum_porc) / 100)));
-
-    const { createDLocalPayment, createDLocalSubscription, createDLocalSubscriptionPlan } = await import("@/lib/dlocal");
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-
-    let payment;
-    let isSubscription = false;
-
-    // Si el plan tiene precio mensual y es para suscripción, intentamos débito automático
-    if (plan.precio_mensual > 0) {
-      isSubscription = true;
-      let dlocalPlanId = plan.dlocal_plan_id;
-
-      // Si no tiene ID de plan dLocal, lo creamos ahora
-      if (!dlocalPlanId) {
-        console.log(`El plan ${plan.nombre} no tiene dLocal ID. Creando plan en dLocal Go...`);
-        const newPlan = await createDLocalSubscriptionPlan({
-          name: plan.nombre,
-          description: `Plan de suscripción mensual Jeheka - ${plan.nombre}`,
-          amount: montoBruto,
-          currency: 'PYG',
-          country: 'PY',
-          frequency: 'MONTHLY'
-        });
-
-        if (newPlan.success && newPlan.id) {
-          dlocalPlanId = newPlan.id;
-          await db.query("UPDATE public.planes SET dlocal_plan_id = $1 WHERE id = $2", [dlocalPlanId, plan.id]);
-          console.log(`Plan dLocal creado y guardado: ${dlocalPlanId}`);
-        } else {
-          console.error("Error al crear plan en dLocal, cayendo a pago único:", newPlan.error);
-          isSubscription = false;
-        }
-      }
-
-      if (isSubscription && dlocalPlanId) {
-        console.log(`Iniciando flujo de SUSCRIPCIÓN para aviso ${aviId}`);
-        payment = await createDLocalSubscription({
-          plan_id: dlocalPlanId,
-          order_id: aviId.toString(),
-          success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${aviId}&type=sub`,
-          back_url: `${baseUrl}/mis-avisos/nuevo`,
-          notification_url: `${baseUrl}/api/webhooks/dlocal`
-        });
-      }
-    }
-
-    // Si no es suscripción o falló la creación de suscripción, usamos pago único (fallback o manual)
-    if (!isSubscription || !payment?.success) {
-      console.log(`Iniciando flujo de PAGO ÚNICO para aviso ${aviId}`);
-      payment = await createDLocalPayment({
-        amount: montoBruto,
-        currency: 'PYG',
-        country: 'PY',
-        order_id: aviId.toString(),
-        description: `Jeheka - Plan ${plan.nombre}`,
-        success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${aviId}`,
-        back_url: `${baseUrl}/mis-avisos/nuevo`,
-        notification_url: `${baseUrl}/api/webhooks/dlocal`
-      });
-    }
-
-    if (!payment.success) {
-      // Si falla el pago, igual el aviso quedó en pendiente, pero avisamos al usuario
-      console.error("Error al generar pago dLocal:", payment.error);
-      return { 
-        success: true, 
-        message: "Aviso guardado (pendiente), pero hubo un error con el link de pago.",
-        id: aviId
-      };
-    }
-
-    // Guardamos la referencia de dLocal en el aviso
-    await db.query(
-      "UPDATE public.avisos SET dlocal_id = $1, avi_es_suscripcion = $2 WHERE avi_id = $3", 
-      [payment.id, isSubscription, aviId]
-    );
-
     revalidatePath("/mis-avisos");
     return { 
       success: true, 
-      message: "Aviso creado. Redirigiendo al pago...", 
-      id: aviId,
-      checkoutUrl: payment.redirect_url 
+      message: "¡Tu aviso ha sido publicado exitosamente y ya es visible en el portal!", 
+      id: aviId
     };
   } catch (error) {
     console.error("Create Aviso Error:", error);
@@ -491,90 +396,5 @@ export async function cancelSubscription(avisoId: string) {
 }
 
 export async function retryPayment(avisoId: string) {
-  const session = await getSession();
-  if (!session) return { success: false, message: "No hay sesión activa" };
-
-  try {
-    const res = await db.query(
-      `SELECT a.avi_id, a.avi_titulo, p.id as plan_id, p.nombre as plan_nombre, p.precio_mensual, p.dlocal_plan_id,
-        (SELECT COALESCE(SUM(com_porcentaje), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_porc,
-        (SELECT COALESCE(SUM(com_fijo), 0) FROM plan_comisiones pc JOIN comisiones com ON pc.com_id = com.com_id WHERE pc.plan_id = p.id) as sum_fijo
-       FROM public.avisos a
-       JOIN public.planes p ON a.avi_plan_id = p.id
-       WHERE a.avi_id = $1 AND a.usu_id = $2`,
-      [avisoId, session.id]
-    );
-
-    const data = res.rows[0];
-    if (!data) return { success: false, message: "Aviso no encontrado" };
-
-    const { createDLocalPayment, createDLocalSubscription, createDLocalSubscriptionPlan } = await import("@/lib/dlocal");
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-
-    let payment;
-    let isSubscription = false;
-
-    // Calculando Bruto para reintento
-    const { sum_porc, sum_fijo, precio_mensual } = data as any;
-    const montoBruto = Number(sum_porc) >= 100 
-      ? (Number(precio_mensual) + Number(sum_fijo)) 
-      : Math.ceil((Number(precio_mensual) + Number(sum_fijo)) / (1 - (Number(sum_porc) / 100)));
-
-    if (precio_mensual > 0) {
-      isSubscription = true;
-      let dlocalPlanId = data.dlocal_plan_id;
-
-      if (!dlocalPlanId) {
-        const newPlan = await createDLocalSubscriptionPlan({
-          name: data.plan_nombre,
-          description: `Plan de suscripción mensual Jeheka - ${data.plan_nombre}`,
-          amount: montoBruto,
-          currency: 'PYG',
-          country: 'PY',
-          frequency: 'MONTHLY'
-        });
-        if (newPlan.success && newPlan.id) {
-          dlocalPlanId = newPlan.id;
-          await db.query("UPDATE public.planes SET dlocal_plan_id = $1 WHERE id = $2", [dlocalPlanId, data.plan_id]);
-        } else {
-          isSubscription = false;
-        }
-      }
-
-      if (isSubscription && dlocalPlanId) {
-        payment = await createDLocalSubscription({
-          plan_id: dlocalPlanId,
-          order_id: avisoId.toString(),
-          success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${avisoId}&type=sub`,
-          back_url: `${baseUrl}/mis-avisos`,
-          notification_url: `${baseUrl}/api/webhooks/dlocal`
-        });
-      }
-    }
-
-    if (!isSubscription || !payment?.success) {
-      payment = await createDLocalPayment({
-        amount: montoBruto,
-        currency: 'PYG',
-        country: 'PY',
-        order_id: avisoId.toString(),
-        description: `Jeheka - Plan ${data.plan_nombre}`,
-        success_url: `${baseUrl}/mis-avisos/pago-exitoso?avisoId=${avisoId}`,
-        back_url: `${baseUrl}/mis-avisos`,
-        notification_url: `${baseUrl}/api/webhooks/dlocal`
-      });
-    }
-
-    if (!payment.success) return { success: false, message: "Error al generar link de pago" };
-
-    await db.query(
-      "UPDATE public.avisos SET dlocal_id = $1, avi_es_suscripcion = $2 WHERE avi_id = $3", 
-      [payment.id, isSubscription, avisoId]
-    );
-
-    return { success: true, checkoutUrl: payment.redirect_url };
-  } catch (error) {
-    console.error("Error retryPayment:", error);
-    return { success: false, message: "Error al refrescar el pago" };
-  }
+  return { success: false, message: "Los pagos están temporalmente desactivados. Tu aviso ya debería estar activo." };
 }

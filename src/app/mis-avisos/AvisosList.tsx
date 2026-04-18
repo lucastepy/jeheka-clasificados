@@ -43,7 +43,7 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
     setConfirmConfig({
       isOpen: true,
       title: "¿Eliminar Aviso?",
-      description: `Estás a punto de eliminar "${titulo}". Esta acción es irreversible y cancelará cualquier débito automático asociado.`,
+      description: `Estás a punto de eliminar "${titulo}". Esta acción es irreversible.`,
       confirmText: "Eliminar Ahora",
       confirmColor: "red",
       onConfirm: async () => {
@@ -162,33 +162,6 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
                     </div>
                   </div>
 
-                  {/* Info de Suscripción */}
-                  {aviso.avi_es_suscripcion && aviso.avi_fec_vto && (
-                    <div className="mt-4 p-3 bg-white/5 rounded-2xl border border-white/5">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">Vencimiento</span>
-                        <span className={`text-[9px] font-bold uppercase tracking-widest ${aviso.avi_cancelado ? 'text-orange-500' : 'text-emerald-500'}`}>
-                          {aviso.avi_cancelado ? 'No renovará' : 'Débito activo'}
-                        </span>
-                      </div>
-                      <span className="text-xs font-medium opacity-60">
-                        {new Intl.DateTimeFormat('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(aviso.avi_fec_vto))}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Botón Pagar si está Pendiente */}
-                  {aviso.avi_estado === 'PE' && (
-                    <div className="mt-6">
-                      <button
-                        onClick={() => handleRetryPayment(aviso.avi_id)}
-                        className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 active:scale-[0.98]"
-                      >
-                        <CreditCard className="w-4 h-4" />
-                        Pagar y Activar Ahora
-                      </button>
-                    </div>
-                  )}
                 </div>
 
                 {/* Actions */}
@@ -209,16 +182,6 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
                       <Edit3 className="w-4 h-4" />
                     </Link>
                     
-                    {aviso.avi_es_suscripcion && !aviso.avi_cancelado && (
-                      <button 
-                        onClick={() => handleCancelSubscription(aviso.avi_id, aviso.avi_titulo)}
-                        className="p-2.5 rounded-xl hover:bg-orange-500/10 text-orange-500 transition-all border border-transparent hover:border-orange-500/20"
-                        title="Cancelar Débito Automático"
-                      >
-                        <Clock className="w-4 h-4" />
-                      </button>
-                    )}
-
                     <button 
                       onClick={() => handleDelete(aviso.avi_id, aviso.avi_titulo)}
                       className="p-2.5 rounded-xl hover:bg-red-500/10 text-red-500 transition-all border border-transparent hover:border-red-500/20"
