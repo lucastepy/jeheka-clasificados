@@ -7,7 +7,41 @@ import AvisoContact from "./AvisoContact";
 import AvisoProfile from "./AvisoProfile";
 import AvisoRating from "./AvisoRating";
 
+import { Metadata } from "next";
+
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> | { id: string } }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const aviso = await getAvisoById(resolvedParams.id);
+  
+  if (!aviso) {
+    return {
+      title: "Aviso No Encontrado",
+    };
+  }
+
+  const title = `${aviso.avi_titulo} - Jeheka`;
+  const description = aviso.avi_descripcion?.substring(0, 160) + "...";
+  const image = Array.isArray(aviso.avi_imagenes) && aviso.avi_imagenes[0] ? aviso.avi_imagenes[0] : "/logo-jeheka.png";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [image],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 export default async function AvisoDetailPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const resolvedParams = await params;
