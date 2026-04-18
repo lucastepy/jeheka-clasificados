@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Clock, Eye, Trash2, Edit3, ImageIcon, Briefcase, MapPin, Loader2, ShieldCheck, CreditCard } from "lucide-react";
+import { Clock, Eye, Trash2, Edit3, ImageIcon, Briefcase, MapPin, Loader2, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { deleteAviso } from "./actions";
 import { toast } from "sonner";
@@ -85,21 +85,6 @@ export function AvisosList({ initialAvisos }: { initialAvisos: Aviso[] }) {
     });
   };
 
-  const handleRetryPayment = async (id: string) => {
-    const loadingToast = toast.loading("Generando link de pago...");
-    
-    // Importación dinámica para evitar problemas de SSR si fuera necesario
-    const { retryPayment } = await import("./actions");
-    const res = await retryPayment(id);
-    
-    toast.dismiss(loadingToast);
-    
-    if (res.success && res.checkoutUrl) {
-      window.location.href = res.checkoutUrl;
-    } else {
-      toast.error(res.message || "No se pudo generar el link de pago");
-    }
-  };
 
   return (
     <>

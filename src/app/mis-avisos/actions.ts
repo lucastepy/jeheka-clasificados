@@ -395,6 +395,3 @@ export async function cancelSubscription(avisoId: string) {
   }
 }
 
-export async function retryPayment(avisoId: string) {
-  return { success: false, message: "Los pagos están temporalmente desactivados. Tu aviso ya debería estar activo." };
-}
