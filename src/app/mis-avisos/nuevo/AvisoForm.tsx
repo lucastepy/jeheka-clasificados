@@ -197,7 +197,7 @@ export default function AvisoForm({
     }
 
     if (!isEditing && !aceptaTerminos) {
-      toast.error("Debes aceptar las bases y condiciones para continuar con el débito automático");
+      toast.error("Debes aceptar las bases y condiciones para publicar el aviso");
       return;
     }
     
@@ -459,6 +459,21 @@ export default function AvisoForm({
            )}
         </div>
       </div>
+
+      {!isEditing && (
+        <div className="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-background/30 mt-4">
+          <input
+            type="checkbox"
+            id="terminos"
+            checked={aceptaTerminos}
+            onChange={(e) => setAceptaTerminos(e.target.checked)}
+            className="w-4 h-4 rounded border-white/20 bg-background/50 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+          />
+          <label htmlFor="terminos" className="text-xs font-bold uppercase tracking-widest opacity-60 cursor-pointer">
+            Acepto las bases y condiciones para la publicación del aviso
+          </label>
+        </div>
+      )}
 
       <div className="flex justify-end pt-8">
         <button 
